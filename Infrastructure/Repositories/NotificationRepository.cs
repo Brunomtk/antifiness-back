@@ -17,7 +17,7 @@ namespace Infrastructure.Repositories
 
         public async Task<NotificationsPagedDTO> GetPagedNotificationsAsync(NotificationFiltersDTO filters)
         {
-            var query = _dbContext.Notifications.AsQueryable();
+            var query = _dbContext.Notifications.AsNoTracking().AsQueryable();
 
             // Apply filters
             if (filters.Type != null && filters.Type.Length > 0)
@@ -72,7 +72,16 @@ namespace Infrastructure.Repositories
                     Category = n.Category,
                     Title = n.Title,
                     Message = n.Message,
-                    Data = n.Data,
+                    Data = n.Data == null ? null : new NotificationData
+                {
+                    EntityId = n.Data.EntityId,
+                    EntityType = n.Data.EntityType,
+                    Metadata = n.Data.Metadata,
+                    ImageUrl = n.Data.ImageUrl,
+                    Progress = n.Data.Progress,
+                    Value = n.Data.Value,
+                    Unit = n.Data.Unit
+                },
                     Read = n.Read,
                     Priority = n.Priority,
                     CreatedAt = n.CreatedDate,

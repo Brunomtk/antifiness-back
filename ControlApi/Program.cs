@@ -85,8 +85,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://209.97.156.138",
-                "https://209.97.156.138"
+                "https://antifitnessapp.vercel.app"
+
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -98,7 +98,7 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownProxies.Add(IPAddress.Parse("209.97.156.138"));
+    options.KnownProxies.Add(IPAddress.Parse("68.183.154.14"));
     options.RequireHeaderSymmetry = false;
     // options.ForwardLimit = 2; // se houver mais de um proxy no caminho
 });
