@@ -85,7 +85,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "https://antifitnessapp.vercel.app"
+                "https://antifitnessapp.vercel.app",
+                "http://209.97.156.138"
 
             )
             .AllowAnyHeader()
