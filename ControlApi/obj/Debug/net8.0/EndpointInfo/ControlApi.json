@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "AntiFitness.Api",
+    "title": "Control.API",
     "version": "v1"
   },
   "paths": {
@@ -14821,7 +14821,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'",
+        "description": "JWT Authorization headers usando o esquema Bearer. Ex: \"Bearer {token}\"",
         "name": "Authorization",
         "in": "header"
       }
