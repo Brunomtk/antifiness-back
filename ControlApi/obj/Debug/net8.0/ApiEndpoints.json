@@ -1615,6 +1615,42 @@
   },
   {
     "ContainingType": "ControlApi.Controllers.DietController",
+    "Method": "UpdateDietMealWithDiet",
+    "RelativePath": "api/Diet/{dietId}/meals/{mealId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dietId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "mealId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "Core.DTO.Diet.UpdateDietMealRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Core.DTO.Diet.DietMealResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.DietController",
     "Method": "GetDietProgress",
     "RelativePath": "api/Diet/{dietId}/progress",
     "HttpMethod": "GET",

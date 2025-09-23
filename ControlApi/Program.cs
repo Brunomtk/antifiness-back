@@ -1,4 +1,4 @@
-ï»¿using ControlApi.Middleware;
+using ControlApi.Middleware;
 using Infrastructure.Authenticate;
 using Infrastructure.Repositories;
 using Infrastructure.ServiceExtension;
@@ -16,11 +16,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // -----------------------------
-// DI: RepositÃ³rios/ServiÃ§os + Db (feito dentro de AddDIServices)
+// DI: Repositórios/Serviços + Db (feito dentro de AddDIServices)
 // -----------------------------
 builder.Services.AddDIServices(builder.Configuration);
 
-// ðŸ”¹ ServiÃ§os (do primeiro cÃ³digo que vocÃª enviou)
+// ?? Serviços (do primeiro código que você enviou)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresasService, EmpresasService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
@@ -105,7 +105,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 });
 
 // -----------------------------
-// CORS (permitindo apenas origens especÃ­ficas)
+// CORS (permitindo apenas origens específicas)
 // -----------------------------
 builder.Services.AddCors(options =>
 {
@@ -120,10 +120,10 @@ builder.Services.AddCors(options =>
                 if (origin.Equals("http://localhost:3000", StringComparison.OrdinalIgnoreCase)) return true;
                 if (origin.Equals("http://localhost:3001", StringComparison.OrdinalIgnoreCase)) return true;
 
-                // ProduÃ§Ã£o (Front)
+                // Produção (Front)
                 if (origin.Equals("https://antifitnessapp.vercel.app", StringComparison.OrdinalIgnoreCase)) return true;
 
-                // IP pÃºblico
+                // IP público
                 if (origin.Equals("http://209.97.156.138", StringComparison.OrdinalIgnoreCase)) return true;
                 if (origin.Equals("https://209.97.156.138", StringComparison.OrdinalIgnoreCase)) return true;
 
@@ -142,8 +142,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 
-    // Proxy/LB conhecido (IP pÃºblico do seu Nginx/LB)
-    options.KnownProxies.Add(IPAddress.Parse("209.97.149.15")); // ajuste se necessÃ¡rio
+    // Proxy/LB conhecido (IP público do seu Nginx/LB)
+    options.KnownProxies.Add(IPAddress.Parse("209.97.149.15")); // ajuste se necessário
 
     options.RequireHeaderSymmetry = false;
     // options.ForwardLimit = 2; // use se tiver mais de um proxy

@@ -106,7 +106,7 @@ namespace Services
 
         public async Task<DietResponse?> GetDietByIdAsync(int id)
         {
-            var diet = (await _dietRepository.GetAll()).FirstOrDefault(d => d.Id == id);
+            var diet = await _dietRepository.GetByIdDetailedAsync(id);
             return diet != null ? MapToDietResponse(diet) : null;
         }
 
@@ -326,7 +326,8 @@ namespace Services
 
         public async Task<DietMealResponse?> UpdateDietMealAsync(int mealId, UpdateDietMealRequest request)
         {
-            var diet = (await _dietRepository.GetAll()).FirstOrDefault(d => (d.Meals ?? new List<DietMeal>()).Any(m => m.Id == mealId));
+            var diet = await _dietRepository.GetByMealIdForUpdateAsync(mealId);
+            
             if (diet == null) return null;
 
             var meal = diet.Meals!.First(m => m.Id == mealId);
@@ -395,7 +396,8 @@ namespace Services
 
         public async Task<bool> DeleteDietMealAsync(int mealId)
         {
-            var diet = (await _dietRepository.GetAll()).FirstOrDefault(d => (d.Meals ?? new List<DietMeal>()).Any(m => m.Id == mealId));
+            var diet = await _dietRepository.GetByMealIdForUpdateAsync(mealId);
+            
             if (diet == null) return false;
 
             var meal = diet.Meals!.First(m => m.Id == mealId);
@@ -408,7 +410,8 @@ namespace Services
 
         public async Task<bool> CompleteMealAsync(int mealId)
         {
-            var diet = (await _dietRepository.GetAll()).FirstOrDefault(d => (d.Meals ?? new List<DietMeal>()).Any(m => m.Id == mealId));
+            var diet = await _dietRepository.GetByMealIdForUpdateAsync(mealId);
+            
             if (diet == null) return false;
 
             var meal = diet.Meals!.First(m => m.Id == mealId);

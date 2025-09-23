@@ -2,6 +2,8 @@ using Core.DTO.Diet;
 using Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Infrastructure.Repositories;
+using System.Linq;
 
 namespace ControlApi.Controllers
 {
@@ -267,6 +269,12 @@ namespace ControlApi.Controllers
                 return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
             }
         }
+
+        // Alias para compatibilizar com front que envia dietId na rota
+        [HttpPut("{dietId}/meals/{mealId}")]
+        public Task<ActionResult<DietMealResponse>> UpdateDietMealWithDiet(int dietId, int mealId, [FromBody] UpdateDietMealRequest request)
+            => UpdateDietMeal(mealId, request);
+
 
         /// <summary>
         /// Remove uma refeição

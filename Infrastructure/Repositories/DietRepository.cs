@@ -93,5 +93,12 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
+        public async Task<Diet?> GetByMealIdForUpdateAsync(int mealId)
+        {
+            return await _context.Set<Diet>()
+                .Include(d => d.Meals).ThenInclude(m => m.Foods)
+                .FirstOrDefaultAsync(d => d.Meals.Any(m => m.Id == mealId));
+        }
+
     }
 }
