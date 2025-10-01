@@ -52,5 +52,16 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(w => w.Id == id);
         }
 
+
+        /// <summary>
+        /// Retorna um treino com seus exercícios (sem carregar a entidade Exercise) para atualização (rastreamento ON)
+        /// </summary>
+        public async Task<Workout?> GetWorkoutWithExercisesForUpdateAsync(int id)
+        {
+            return await _context.Set<Workout>()
+                .Include(w => w.WorkoutExercises)
+                .FirstOrDefaultAsync(w => w.Id == id);
+        }
+
     }
 }

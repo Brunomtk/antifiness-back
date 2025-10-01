@@ -271,7 +271,7 @@ namespace Services
 
         public async Task<WorkoutResponse?> GetWorkoutByIdAsync(int id)
         {
-            var workout = await _workoutRepository.GetWorkoutWithExercisesAsync(id);
+            var workout = await _workoutRepository.GetWorkoutWithExercisesForUpdateAsync(id);
             return workout != null ? MapToWorkoutResponse(workout) : null;
         }
 
@@ -359,6 +359,7 @@ namespace Services
                 var existingExercises = workout.WorkoutExercises?.ToList() ?? new List<WorkoutExercise>();
                 foreach (var existing in existingExercises)
                 {
+                    existing.Exercise = null;
                     _workoutExerciseRepository.Delete(existing);
                 }
 
