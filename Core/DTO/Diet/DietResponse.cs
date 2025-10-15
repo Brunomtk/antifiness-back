@@ -1,5 +1,7 @@
 using Core.Enums;
 
+using Core.DTO.Nutrition;
+
 namespace Core.DTO.Diet
 {
     public class DietResponse
@@ -34,6 +36,7 @@ namespace Core.DTO.Diet
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        public DietMicronutrientsDTO? Micronutrients { get; set; }
         public List<DietMealResponse> Meals { get; set; } = new List<DietMealResponse>();
     }
 }

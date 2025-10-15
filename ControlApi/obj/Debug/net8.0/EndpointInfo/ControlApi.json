@@ -3294,6 +3294,94 @@
         }
       }
     },
+    "/api/DietMicros/calc": {
+      "post": {
+        "tags": [
+          "DietMicros"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcMicrosInputDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcMicrosInputDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcMicrosInputDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DietMicros/{dietId}": {
+      "get": {
+        "tags": [
+          "DietMicros"
+        ],
+        "parameters": [
+          {
+            "name": "dietId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalcMicrosResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Empresas/create": {
       "post": {
         "tags": [
@@ -4760,6 +4848,142 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/FoodMicronutrients/types": {
+      "get": {
+        "tags": [
+          "FoodMicronutrients"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MicronutrientDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MicronutrientDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MicronutrientDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FoodMicronutrients/{foodId}": {
+      "get": {
+        "tags": [
+          "FoodMicronutrients"
+        ],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "FoodMicronutrients"
+        ],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FoodMicronutrientDTO"
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -7871,6 +8095,32 @@
         "type": "integer",
         "format": "int32"
       },
+      "CalcMicrosInputDTO": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CalcMicrosResultDTO": {
+        "type": "object",
+        "properties": {
+          "totals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MicronutrientTotal"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CategoryStats": {
         "type": "object",
         "properties": {
@@ -8871,27 +9121,18 @@
         "additionalProperties": false
       },
       "CreateClientRequest": {
-        "required": [
-          "activityLevel",
-          "currentWeight",
-          "dateOfBirth",
-          "email",
-          "empresaId",
-          "gender",
-          "height",
-          "name"
-        ],
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 100,
             "minLength": 0,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "nullable": true
           },
           "phone": {
             "type": "string",
@@ -8904,23 +9145,26 @@
           },
           "dateOfBirth": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "gender": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "height": {
             "maximum": 250,
             "minimum": 50,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "currentWeight": {
             "maximum": 500,
             "minimum": 20,
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "nullable": true
           },
           "targetWeight": {
             "maximum": 500,
@@ -8937,7 +9181,8 @@
           },
           "empresaId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "goals": {
             "type": "array",
@@ -9291,6 +9536,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
           }
         },
         "additionalProperties": false
@@ -9547,6 +9795,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
           },
           "isActive": {
             "type": "boolean"
@@ -10466,6 +10717,102 @@
         },
         "additionalProperties": false
       },
+      "DietMicronutrientsDTO": {
+        "type": "object",
+        "properties": {
+          "vitaminA": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminC": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminD": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminE": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminK": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminB1": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminB2": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminB3": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminB6": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "folate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vitaminB12": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "calcium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "iron": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "magnesium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "potassium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "zinc": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "sodium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "selenium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DietProgressResponse": {
         "type": "object",
         "properties": {
@@ -10637,6 +10984,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
           },
           "meals": {
             "type": "array",
@@ -11451,6 +11801,20 @@
         "type": "integer",
         "format": "int32"
       },
+      "FoodMicronutrientDTO": {
+        "type": "object",
+        "properties": {
+          "micronutrientTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amountPer100g": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "FoodResponse": {
         "type": "object",
         "properties": {
@@ -11513,6 +11877,9 @@
           "isActive": {
             "type": "boolean"
           },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11535,6 +11902,20 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "portionGrams": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "LessonResponse": {
         "type": "object",
@@ -12025,6 +12406,54 @@
           "limit": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MicronutrientDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MicronutrientTotal": {
+        "type": "object",
+        "properties": {
+          "micronutrientTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -13561,6 +13990,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
           }
         },
         "additionalProperties": false
@@ -13797,6 +14229,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "micronutrients": {
+            "$ref": "#/components/schemas/DietMicronutrientsDTO"
           },
           "isActive": {
             "type": "boolean",

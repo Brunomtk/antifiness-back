@@ -3,6 +3,8 @@ using Core.Models.Client;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Core.Models.Nutrition;
+
 namespace Core.Models.Diet
 {
     public class Diet : BaseModel
@@ -43,7 +45,10 @@ namespace Core.Models.Diet
         [StringLength(1000)]
         public string? Notes { get; set; }
 
-        // Relacionamentos
+        
+        // Totais de micronutrientes (por dia) agregados ou informados manualmente
+        public MicronutrientProfile? Micros { get; set; }
+// Relacionamentos
         [ForeignKey("ClientId")]
         public virtual Client.Client Client { get; set; } = null!;
 

@@ -7,6 +7,9 @@ using Core.Enums;
 using Core.Models.Diet;
 using Infrastructure.Repositories;
 
+using Core.DTO.Nutrition;
+using Services;
+
 namespace Services
 {
     public interface IDietService
@@ -42,12 +45,14 @@ namespace Services
         private readonly DietRepository _dietRepository;
         private readonly FoodRepository _foodRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INutritionService _nutritionService;
 
-        public DietService(DietRepository dietRepository, FoodRepository foodRepository, IUnitOfWork unitOfWork)
+        public DietService(DietRepository dietRepository, FoodRepository foodRepository, IUnitOfWork unitOfWork, INutritionService nutritionService)
         {
             _dietRepository = dietRepository;
             _foodRepository = foodRepository;
             _unitOfWork = unitOfWork;
+            _nutritionService = nutritionService;
         }
 
         public async Task<DietsPagedDTO> GetAllDietsAsync(int pageNumber, int pageSize, DietFiltersDTO? filters = null)
@@ -107,7 +112,13 @@ namespace Services
         public async Task<DietResponse?> GetDietByIdAsync(int id)
         {
             var diet = await _dietRepository.GetByIdDetailedAsync(id);
-            return diet != null ? MapToDietResponse(diet) : null;
+            if (diet == null) return null;
+            var resp = MapToDietResponse(diet);
+            try {
+                var calc = await _nutritionService.CalculateMicrosForDietAsync(id);
+                resp.Micronutrients = MapMicrosTop(calc);
+            } catch {}
+            return resp;
         }
 
         public async Task<DietResponse> CreateDietAsync(CreateDietRequest request)
@@ -128,7 +139,8 @@ namespace Services
                 DailyFiber = request.DailyFiber,
                 DailySodium = request.DailySodium,
                 Restrictions = request.Restrictions,
-                Notes = request.Notes
+                Notes = request.Notes,
+                            Micros = request.Micronutrients != null ? MapProfileFromDTO(request.Micronutrients) : null
             };
 
             _dietRepository.Add(diet);
@@ -461,16 +473,15 @@ namespace Services
                 SodiumPer100g = request.SodiumPer100g,
                 Allergens = request.Allergens,
                 CommonPortions = request.CommonPortions,
-                IsActive = request.IsActive
+                IsActive = request.IsActive,
+                Micros = request.Micronutrients != null ? MapProfileFromDTO(request.Micronutrients) : null
             };
 
             _foodRepository.Add(food);
             await _unitOfWork.SaveAsync();
-
             return MapToFoodResponse(food);
         }
-
-        public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest request)
+public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest request)
         {
             var foods = await _foodRepository.GetAll();
             var food = foods.FirstOrDefault(f => f.Id == id);
@@ -491,6 +502,29 @@ namespace Services
 
             food.UpdatedDate = DateTime.UtcNow;
 
+            if (request.Micronutrients != null)
+            {
+                if (food.Micros == null) food.Micros = new Core.Models.Nutrition.MicronutrientProfile();
+                var src = request.Micronutrients;
+                food.Micros.VitaminA = src.VitaminA;
+                food.Micros.VitaminC = src.VitaminC;
+                food.Micros.VitaminD = src.VitaminD;
+                food.Micros.VitaminE = src.VitaminE;
+                food.Micros.VitaminK = src.VitaminK;
+                food.Micros.VitaminB1 = src.VitaminB1;
+                food.Micros.VitaminB2 = src.VitaminB2;
+                food.Micros.VitaminB3 = src.VitaminB3;
+                food.Micros.VitaminB6 = src.VitaminB6;
+                food.Micros.Folate = src.Folate;
+                food.Micros.VitaminB12 = src.VitaminB12;
+                food.Micros.Calcium = src.Calcium;
+                food.Micros.Iron = src.Iron;
+                food.Micros.Magnesium = src.Magnesium;
+                food.Micros.Potassium = src.Potassium;
+                food.Micros.Zinc = src.Zinc;
+                food.Micros.Sodium = src.Sodium;
+                food.Micros.Selenium = src.Selenium;
+            }
             _foodRepository.Update(food);
             await _unitOfWork.SaveAsync();
 
@@ -587,7 +621,8 @@ namespace Services
                 CompletionPercentage = totalMeals > 0 ? (double)completedMeals / totalMeals * 100 : 0,
                 CreatedAt = diet.CreatedDate,
                 UpdatedAt = diet.UpdatedDate,
-                Meals = meals.Select(MapToDietMealResponse).ToList()
+                Meals = meals.Select(MapToDietMealResponse).ToList(),
+                Micronutrients = SumMicrosFromDiet(diet)
             };
         }
 
@@ -650,7 +685,8 @@ namespace Services
                 CommonPortions = food.CommonPortions,
                 IsActive = food.IsActive,
                 CreatedAt = food.CreatedDate,
-                UpdatedAt = food.UpdatedDate
+                UpdatedAt = food.UpdatedDate,
+                Micronutrients = MapMicrosFromProfile(food.Micros)
             };
         }
 
@@ -707,5 +743,135 @@ namespace Services
             FoodCategory.Others => "Outros",
             _ => category.ToString()
         };
-    }
+
+        private DietMicronutrientsDTO MapMicrosTop(CalcMicrosResultDTO calc)
+        {
+            var dto = new DietMicronutrientsDTO();
+            if (calc?.Totals == null) return dto;
+
+            decimal? get(params string[] keys)
+            {
+                foreach (var k in keys)
+                {
+                    var hit = calc.Totals.FirstOrDefault(t =>
+                        string.Equals(t.Code, k, System.StringComparison.OrdinalIgnoreCase) ||
+                        t.Name.Contains(k, System.StringComparison.OrdinalIgnoreCase));
+                    if (hit != null) return hit.TotalAmount;
+                }
+                return null;
+            }
+
+            dto.VitaminA  = get("VITA", "Vitamina A", "Vitamin A");
+            dto.VitaminC  = get("VITC", "Vitamina C", "Vitamin C");
+            dto.VitaminD  = get("VITD", "Vitamina D", "Vitamin D");
+            dto.VitaminE  = get("VITE", "Vitamina E", "Vitamin E");
+            dto.VitaminK  = get("VITK", "Vitamina K", "Vitamin K");
+            dto.VitaminB1 = get("B1", "Tiamina", "Thiamin"); 
+            dto.VitaminB2 = get("B2", "Riboflavina", "Riboflavin");
+            dto.VitaminB3 = get("B3", "Niacina", "Niacin");
+            dto.VitaminB6 = get("B6", "Vitamina B6", "Vitamin B6");
+            dto.Folate    = get("B9", "Ácido Fólico", "Folate", "Folic");
+            dto.VitaminB12= get("B12", "Cobalamina", "Vitamin B12");
+            dto.Calcium   = get("CA", "Cálcio", "Calcium");
+            dto.Iron      = get("FE", "Ferro", "Iron");
+            dto.Magnesium = get("MG", "Magnésio", "Magnesium");
+            dto.Potassium = get("K", "Potássio", "Potassium");
+            dto.Zinc      = get("ZN", "Zinco", "Zinc");
+            dto.Sodium    = get("NA", "Sódio", "Sodium");
+            dto.Selenium  = get("SE", "Selênio", "Selenium");
+            return dto;
+        }
+    
+
+        private Core.DTO.Nutrition.DietMicronutrientsDTO? MapMicrosFromProfile(Core.Models.Nutrition.MicronutrientProfile? m)
+        {
+            if (m == null) return null;
+            return new Core.DTO.Nutrition.DietMicronutrientsDTO
+            {
+                VitaminA = m.VitaminA,
+                VitaminC = m.VitaminC,
+                VitaminD = m.VitaminD,
+                VitaminE = m.VitaminE,
+                VitaminK = m.VitaminK,
+                VitaminB1 = m.VitaminB1,
+                VitaminB2 = m.VitaminB2,
+                VitaminB3 = m.VitaminB3,
+                VitaminB6 = m.VitaminB6,
+                Folate = m.Folate,
+                VitaminB12 = m.VitaminB12,
+                Calcium = m.Calcium,
+                Iron = m.Iron,
+                Magnesium = m.Magnesium,
+                Potassium = m.Potassium,
+                Zinc = m.Zinc,
+                Sodium = m.Sodium,
+                Selenium = m.Selenium
+            };
+        }
+
+        private Core.Models.Nutrition.MicronutrientProfile MapProfileFromDTO(Core.DTO.Nutrition.DietMicronutrientsDTO dto)
+        {
+            return new Core.Models.Nutrition.MicronutrientProfile
+            {
+                VitaminA = dto.VitaminA,
+                VitaminC = dto.VitaminC,
+                VitaminD = dto.VitaminD,
+                VitaminE = dto.VitaminE,
+                VitaminK = dto.VitaminK,
+                VitaminB1 = dto.VitaminB1,
+                VitaminB2 = dto.VitaminB2,
+                VitaminB3 = dto.VitaminB3,
+                VitaminB6 = dto.VitaminB6,
+                Folate = dto.Folate,
+                VitaminB12 = dto.VitaminB12,
+                Calcium = dto.Calcium,
+                Iron = dto.Iron,
+                Magnesium = dto.Magnesium,
+                Potassium = dto.Potassium,
+                Zinc = dto.Zinc,
+                Sodium = dto.Sodium,
+                Selenium = dto.Selenium
+            };
+        }
+
+        // Agrega micronutrientes a partir dos alimentos/quantidades da dieta
+        private Core.DTO.Nutrition.DietMicronutrientsDTO SumMicrosFromDiet(Diet diet)
+        {
+            var acc = new Core.DTO.Nutrition.DietMicronutrientsDTO();
+            if (diet?.Meals == null) return acc;
+
+            decimal add(decimal? a, decimal? b) => (a ?? 0m) + (b ?? 0m);
+
+            foreach (var meal in diet.Meals)
+            {
+                if (meal?.Foods == null) continue;
+                foreach (var mf in meal.Foods)
+                {
+                    var f = mf.Food;
+                    if (f?.Micros == null) continue;
+                    // fator: quantidade em g / 100
+                    var factor = (decimal)((mf.Quantity <= 0 ? 0 : mf.Quantity) / 100.0);
+                    acc.VitaminA  = add(acc.VitaminA,  f.Micros.VitaminA  * factor);
+                    acc.VitaminC  = add(acc.VitaminC,  f.Micros.VitaminC  * factor);
+                    acc.VitaminD  = add(acc.VitaminD,  f.Micros.VitaminD  * factor);
+                    acc.VitaminE  = add(acc.VitaminE,  f.Micros.VitaminE  * factor);
+                    acc.VitaminK  = add(acc.VitaminK,  f.Micros.VitaminK  * factor);
+                    acc.VitaminB1 = add(acc.VitaminB1, f.Micros.VitaminB1 * factor);
+                    acc.VitaminB2 = add(acc.VitaminB2, f.Micros.VitaminB2 * factor);
+                    acc.VitaminB3 = add(acc.VitaminB3, f.Micros.VitaminB3 * factor);
+                    acc.VitaminB6 = add(acc.VitaminB6, f.Micros.VitaminB6 * factor);
+                    acc.Folate    = add(acc.Folate,    f.Micros.Folate    * factor);
+                    acc.VitaminB12= add(acc.VitaminB12,f.Micros.VitaminB12* factor);
+                    acc.Calcium   = add(acc.Calcium,   f.Micros.Calcium   * factor);
+                    acc.Iron      = add(acc.Iron,      f.Micros.Iron      * factor);
+                    acc.Magnesium = add(acc.Magnesium, f.Micros.Magnesium * factor);
+                    acc.Potassium = add(acc.Potassium, f.Micros.Potassium * factor);
+                    acc.Zinc      = add(acc.Zinc,      f.Micros.Zinc      * factor);
+                    acc.Sodium    = add(acc.Sodium,    f.Micros.Sodium    * factor);
+                    acc.Selenium  = add(acc.Selenium,  f.Micros.Selenium  * factor);
+                }
+            }
+            return acc;
+        }
+}
 }

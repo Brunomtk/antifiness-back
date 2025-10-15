@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DbContextClass))]
-    [Migration("20250903194903_Inicial")]
+    [Migration("20251015133323_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -43,31 +43,28 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("CurrentWeight")
+                    b.Property<double?>("CurrentWeight")
                         .HasColumnType("double precision");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("EmpresaId")
+                    b.Property<int?>("EmpresaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Height")
+                    b.Property<int?>("Height")
                         .HasColumnType("integer");
 
                     b.Property<int>("KanbanStage")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
@@ -1276,6 +1273,75 @@ namespace Infrastructure.Migrations
                     b.ToTable("NotificationTemplates");
                 });
 
+            modelBuilder.Entity("Core.Models.Nutrition.FoodMicronutrient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AmountPer100g")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FoodId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MicronutrientTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FoodId");
+
+                    b.HasIndex("MicronutrientTypeId");
+
+                    b.ToTable("FoodMicronutrients");
+                });
+
+            modelBuilder.Entity("Core.Models.Nutrition.MicronutrientType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsFatSolubleVitamin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTraceMineral")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MicronutrientTypes");
+                });
+
             modelBuilder.Entity("Core.Models.Plan.Plan", b =>
                 {
                     b.Property<int>("Id")
@@ -1987,9 +2053,112 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("Core.Models.Nutrition.MicronutrientProfile", "Micros", b1 =>
+                        {
+                            b1.Property<int>("DietId")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal?>("Calcium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Calcium");
+
+                            b1.Property<decimal?>("Copper")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Copper");
+
+                            b1.Property<decimal?>("Folate")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Folate");
+
+                            b1.Property<decimal?>("Iodine")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Iodine");
+
+                            b1.Property<decimal?>("Iron")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Iron");
+
+                            b1.Property<decimal?>("Magnesium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Magnesium");
+
+                            b1.Property<decimal?>("Manganese")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Manganese");
+
+                            b1.Property<decimal?>("Phosphorus")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Phosphorus");
+
+                            b1.Property<decimal?>("Potassium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Potassium");
+
+                            b1.Property<decimal?>("Selenium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Selenium");
+
+                            b1.Property<decimal?>("Sodium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Sodium");
+
+                            b1.Property<decimal?>("VitaminA")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminA");
+
+                            b1.Property<decimal?>("VitaminB1")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB1");
+
+                            b1.Property<decimal?>("VitaminB12")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB12");
+
+                            b1.Property<decimal?>("VitaminB2")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB2");
+
+                            b1.Property<decimal?>("VitaminB3")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB3");
+
+                            b1.Property<decimal?>("VitaminB6")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB6");
+
+                            b1.Property<decimal?>("VitaminC")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminC");
+
+                            b1.Property<decimal?>("VitaminD")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminD");
+
+                            b1.Property<decimal?>("VitaminE")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminE");
+
+                            b1.Property<decimal?>("VitaminK")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminK");
+
+                            b1.Property<decimal?>("Zinc")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Zinc");
+
+                            b1.HasKey("DietId");
+
+                            b1.ToTable("Diets");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DietId");
+                        });
+
                     b.Navigation("Client");
 
                     b.Navigation("Empresa");
+
+                    b.Navigation("Micros");
                 });
 
             modelBuilder.Entity("Core.Models.Diet.DietMeal", b =>
@@ -2035,6 +2204,112 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Diet");
+                });
+
+            modelBuilder.Entity("Core.Models.Diet.Food", b =>
+                {
+                    b.OwnsOne("Core.Models.Nutrition.MicronutrientProfile", "Micros", b1 =>
+                        {
+                            b1.Property<int>("FoodId")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal?>("Calcium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Calcium");
+
+                            b1.Property<decimal?>("Copper")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Copper");
+
+                            b1.Property<decimal?>("Folate")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Folate");
+
+                            b1.Property<decimal?>("Iodine")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Iodine");
+
+                            b1.Property<decimal?>("Iron")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Iron");
+
+                            b1.Property<decimal?>("Magnesium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Magnesium");
+
+                            b1.Property<decimal?>("Manganese")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Manganese");
+
+                            b1.Property<decimal?>("Phosphorus")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Phosphorus");
+
+                            b1.Property<decimal?>("Potassium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Potassium");
+
+                            b1.Property<decimal?>("Selenium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Selenium");
+
+                            b1.Property<decimal?>("Sodium")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Sodium");
+
+                            b1.Property<decimal?>("VitaminA")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminA");
+
+                            b1.Property<decimal?>("VitaminB1")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB1");
+
+                            b1.Property<decimal?>("VitaminB12")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB12");
+
+                            b1.Property<decimal?>("VitaminB2")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB2");
+
+                            b1.Property<decimal?>("VitaminB3")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB3");
+
+                            b1.Property<decimal?>("VitaminB6")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminB6");
+
+                            b1.Property<decimal?>("VitaminC")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminC");
+
+                            b1.Property<decimal?>("VitaminD")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminD");
+
+                            b1.Property<decimal?>("VitaminE")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminE");
+
+                            b1.Property<decimal?>("VitaminK")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_VitaminK");
+
+                            b1.Property<decimal?>("Zinc")
+                                .HasColumnType("numeric")
+                                .HasColumnName("Micros_Zinc");
+
+                            b1.HasKey("FoodId");
+
+                            b1.ToTable("Foods");
+
+                            b1.WithOwner()
+                                .HasForeignKey("FoodId");
+                        });
+
+                    b.Navigation("Micros");
                 });
 
             modelBuilder.Entity("Core.Models.Empresas", b =>
@@ -2497,6 +2772,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Core.Models.Nutrition.FoodMicronutrient", b =>
+                {
+                    b.HasOne("Core.Models.Diet.Food", "Food")
+                        .WithMany("Micronutrients")
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.Nutrition.MicronutrientType", "MicronutrientType")
+                        .WithMany()
+                        .HasForeignKey("MicronutrientTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Food");
+
+                    b.Navigation("MicronutrientType");
+                });
+
             modelBuilder.Entity("Core.Models.Plan.Plan", b =>
                 {
                     b.HasOne("Core.Models.User", "Client")
@@ -2699,6 +2993,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Models.Diet.Food", b =>
                 {
                     b.Navigation("MealFoods");
+
+                    b.Navigation("Micronutrients");
                 });
 
             modelBuilder.Entity("Core.Models.Message.Conversation", b =>

@@ -1915,6 +1915,58 @@
     ]
   },
   {
+    "ContainingType": "ControlApi.Controllers.DietMicrosController",
+    "Method": "CalcByDiet",
+    "RelativePath": "api/DietMicros/{dietId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dietId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Core.DTO.Nutrition.CalcMicrosResultDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.DietMicrosController",
+    "Method": "Calc",
+    "RelativePath": "api/DietMicros/calc",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "Core.DTO.Nutrition.CalcMicrosInputDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Core.DTO.Nutrition.CalcMicrosResultDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "ControlApi.Controllers.EmpresasController",
     "Method": "GetEmpresas",
     "RelativePath": "api/Empresas",
@@ -2805,6 +2857,73 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.FoodMicronutrientsController",
+    "Method": "GetForFood",
+    "RelativePath": "api/FoodMicronutrients/{foodId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "foodId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[Core.DTO.Nutrition.FoodMicronutrientDTO, Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.FoodMicronutrientsController",
+    "Method": "SetForFood",
+    "RelativePath": "api/FoodMicronutrients/{foodId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "foodId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "body",
+        "Type": "System.Collections.Generic.List\u00601[[Core.DTO.Nutrition.FoodMicronutrientDTO, Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.FoodMicronutrientsController",
+    "Method": "GetTypes",
+    "RelativePath": "api/FoodMicronutrients/types",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[Core.DTO.Nutrition.MicronutrientDTO, Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "ControlApi.Controllers.MessageController",

@@ -1,3 +1,4 @@
+using Core.DTO.Nutrition;
 using Core.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -36,6 +37,8 @@ namespace Core.DTO.Diet
 
         [StringLength(200, ErrorMessage = "Porções comuns devem ter no máximo 200 caracteres")]
         public string? CommonPortions { get; set; }
+
+        public DietMicronutrientsDTO? Micronutrients { get; set; }
 
         public bool? IsActive { get; set; }
     }

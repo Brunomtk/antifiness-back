@@ -76,6 +76,7 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<INutritionService, NutritionService>();
 builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
 // ------- CORS (local + IP 209.97.156.138) -------

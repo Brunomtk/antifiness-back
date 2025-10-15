@@ -1,5 +1,8 @@
+using Core.Models.Nutrition;
 using Core.Enums;
 using System.ComponentModel.DataAnnotations;
+
+using Core.Models.Nutrition;
 
 namespace Core.Models.Diet
 {
@@ -33,7 +36,11 @@ namespace Core.Models.Diet
 
         public bool IsActive { get; set; } = true;
 
-        // Relacionamentos
+        
+        // Micronutrientes por 100g (OWNED no mesmo registro)
+        public MicronutrientProfile? Micros { get; set; }
+// Relacionamentos
         public virtual ICollection<DietMealFood> MealFoods { get; set; } = new List<DietMealFood>();
+        public virtual ICollection<FoodMicronutrient> Micronutrients { get; set; } = new List<FoodMicronutrient>();
     }
 }

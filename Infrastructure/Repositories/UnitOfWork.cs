@@ -9,6 +9,7 @@ using Core.Models.Feedback;
 using Core.Models.Course;
 using Core.Models.Notification;
 using Core.Models.Message;
+using Core.Models.Nutrition;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -39,6 +40,8 @@ namespace Infrastructure.Repositories
         IGenericRepository<MessageAttachment> MessageAttachments { get; }
         IGenericRepository<MessageReaction> MessageReactions { get; }
         MessageTemplateRepository MessageTemplates { get; }
+        IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
+        IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
         int Save();
         Task<int> SaveAsync();
     }
@@ -71,6 +74,8 @@ namespace Infrastructure.Repositories
         public IGenericRepository<MessageAttachment> MessageAttachments { get; }
         public IGenericRepository<MessageReaction> MessageReactions { get; }
         public MessageTemplateRepository MessageTemplates { get; }
+        public IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
+        public IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
 
         public UnitOfWork(
             DbContextClass dbContext,
@@ -101,7 +106,9 @@ namespace Infrastructure.Repositories
             Messages = messageRepository;
             MessageTemplates = messageTemplateRepository;
             
-            // Create concrete implementations of generic repositories
+                        MicronutrientTypes = new MicronutrientTypeRepository(_dbContext);
+            FoodMicronutrients = new FoodMicronutrientRepository(_dbContext);
+// Create concrete implementations of generic repositories
             WorkoutExercises = new WorkoutExerciseRepository(_dbContext);
             WorkoutProgress = new WorkoutProgressRepository(_dbContext);
             Lessons = new LessonRepository(_dbContext);

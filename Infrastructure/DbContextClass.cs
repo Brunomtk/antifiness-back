@@ -12,6 +12,7 @@ using Core.Models.Feedback;
 using Core.Models.Course;
 using Core.Models.Notification;
 using Core.Models.Message;
+using Core.Models.Nutrition;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -52,6 +53,8 @@ namespace Infrastructure
         public DbSet<NotificationSettings> NotificationSettings { get; set; }
         public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
         public DbSet<NotificationSubscription> NotificationSubscriptions { get; set; }
+        public DbSet<MicronutrientType> MicronutrientTypes { get; set; }
+        public DbSet<FoodMicronutrient> FoodMicronutrients { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
@@ -127,7 +130,60 @@ namespace Infrastructure
                     });
                 });
 
-            // Diet relationships
+            
+            // Owned types: Micronutrientes no mesmo registro
+            modelBuilder.Entity<Core.Models.Diet.Food>().OwnsOne(f => f.Micros, nb =>
+            {
+                nb.Property(p => p.VitaminA).HasColumnName("Micros_VitaminA");
+                nb.Property(p => p.VitaminC).HasColumnName("Micros_VitaminC");
+                nb.Property(p => p.VitaminD).HasColumnName("Micros_VitaminD");
+                nb.Property(p => p.VitaminE).HasColumnName("Micros_VitaminE");
+                nb.Property(p => p.VitaminK).HasColumnName("Micros_VitaminK");
+                nb.Property(p => p.VitaminB1).HasColumnName("Micros_VitaminB1");
+                nb.Property(p => p.VitaminB2).HasColumnName("Micros_VitaminB2");
+                nb.Property(p => p.VitaminB3).HasColumnName("Micros_VitaminB3");
+                nb.Property(p => p.VitaminB6).HasColumnName("Micros_VitaminB6");
+                nb.Property(p => p.Folate).HasColumnName("Micros_Folate");
+                nb.Property(p => p.VitaminB12).HasColumnName("Micros_VitaminB12");
+                nb.Property(p => p.Calcium).HasColumnName("Micros_Calcium");
+                nb.Property(p => p.Iron).HasColumnName("Micros_Iron");
+                nb.Property(p => p.Magnesium).HasColumnName("Micros_Magnesium");
+                nb.Property(p => p.Potassium).HasColumnName("Micros_Potassium");
+                nb.Property(p => p.Zinc).HasColumnName("Micros_Zinc");
+                nb.Property(p => p.Sodium).HasColumnName("Micros_Sodium");
+                nb.Property(p => p.Selenium).HasColumnName("Micros_Selenium");
+                nb.Property(p => p.Phosphorus).HasColumnName("Micros_Phosphorus");
+                nb.Property(p => p.Copper).HasColumnName("Micros_Copper");
+                nb.Property(p => p.Manganese).HasColumnName("Micros_Manganese");
+                nb.Property(p => p.Iodine).HasColumnName("Micros_Iodine");
+            });
+
+            modelBuilder.Entity<Core.Models.Diet.Diet>().OwnsOne(d => d.Micros, nb =>
+            {
+                nb.Property(p => p.VitaminA).HasColumnName("Micros_VitaminA");
+                nb.Property(p => p.VitaminC).HasColumnName("Micros_VitaminC");
+                nb.Property(p => p.VitaminD).HasColumnName("Micros_VitaminD");
+                nb.Property(p => p.VitaminE).HasColumnName("Micros_VitaminE");
+                nb.Property(p => p.VitaminK).HasColumnName("Micros_VitaminK");
+                nb.Property(p => p.VitaminB1).HasColumnName("Micros_VitaminB1");
+                nb.Property(p => p.VitaminB2).HasColumnName("Micros_VitaminB2");
+                nb.Property(p => p.VitaminB3).HasColumnName("Micros_VitaminB3");
+                nb.Property(p => p.VitaminB6).HasColumnName("Micros_VitaminB6");
+                nb.Property(p => p.Folate).HasColumnName("Micros_Folate");
+                nb.Property(p => p.VitaminB12).HasColumnName("Micros_VitaminB12");
+                nb.Property(p => p.Calcium).HasColumnName("Micros_Calcium");
+                nb.Property(p => p.Iron).HasColumnName("Micros_Iron");
+                nb.Property(p => p.Magnesium).HasColumnName("Micros_Magnesium");
+                nb.Property(p => p.Potassium).HasColumnName("Micros_Potassium");
+                nb.Property(p => p.Zinc).HasColumnName("Micros_Zinc");
+                nb.Property(p => p.Sodium).HasColumnName("Micros_Sodium");
+                nb.Property(p => p.Selenium).HasColumnName("Micros_Selenium");
+                nb.Property(p => p.Phosphorus).HasColumnName("Micros_Phosphorus");
+                nb.Property(p => p.Copper).HasColumnName("Micros_Copper");
+                nb.Property(p => p.Manganese).HasColumnName("Micros_Manganese");
+                nb.Property(p => p.Iodine).HasColumnName("Micros_Iodine");
+            });
+// Diet relationships
             modelBuilder.Entity<Core.Models.Diet.Diet>()
                 .HasMany(d => d.Meals)
                 .WithOne(m => m.Diet)

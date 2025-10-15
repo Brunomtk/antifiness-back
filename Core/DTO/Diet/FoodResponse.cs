@@ -1,3 +1,4 @@
+using Core.DTO.Nutrition;
 using Core.Enums;
 
 namespace Core.DTO.Diet
@@ -18,6 +19,7 @@ namespace Core.DTO.Diet
         public string? Allergens { get; set; }
         public string? CommonPortions { get; set; }
         public bool IsActive { get; set; }
+        public DietMicronutrientsDTO? Micronutrients { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

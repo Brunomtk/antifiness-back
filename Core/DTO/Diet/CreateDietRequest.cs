@@ -1,3 +1,4 @@
+using Core.DTO.Nutrition;
 using Core.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -49,5 +50,7 @@ namespace Core.DTO.Diet
 
         [StringLength(1000, ErrorMessage = "Observações devem ter no máximo 1000 caracteres")]
         public string? Notes { get; set; }
+
+        public DietMicronutrientsDTO? Micronutrients { get; set; }
     }
 }

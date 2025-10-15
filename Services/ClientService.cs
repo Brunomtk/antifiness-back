@@ -51,37 +51,37 @@ namespace Services
         {
             // Verificar se email já existe
             var allClients = (await _clients.GetAll()).ToList();
-            var existingClient = allClients.FirstOrDefault(c => c.Email.ToLower() == req.Email.ToLower());
+            var existingClient = (!string.IsNullOrWhiteSpace(req.Email)) ? (await _clients.GetAll()).FirstOrDefault(c => (c.Email ?? string.Empty).ToLower() == req.Email!.ToLower()) : null;
             if (existingClient != null)
                 return null;
 
             var entity = new Client
             {
-                Name = req.Name,
-                Email = req.Email,
-                Phone = req.Phone,
+                Name = string.IsNullOrWhiteSpace(req.Name) ? "Cliente" : req.Name!.Trim(),
+                Email = string.IsNullOrWhiteSpace(req.Email) ? null : req.Email!.Trim().ToLowerInvariant(),
+                Phone = string.IsNullOrWhiteSpace(req.Phone) ? null : req.Phone!.Trim(),
                 Avatar = req.Avatar,
-                DateOfBirth = req.DateOfBirth,
-                Gender = req.Gender,
-                Height = req.Height,
-                CurrentWeight = req.CurrentWeight,
-                TargetWeight = req.TargetWeight,
-                ActivityLevel = req.ActivityLevel,
-                KanbanStage = req.KanbanStage,
-                EmpresaId = req.EmpresaId,
-                Status = ClientStatus.Active,
+                DateOfBirth = req.DateOfBirth ?? new DateTime(2000,1,1,0,0,0,DateTimeKind.Utc),
+                Gender = string.IsNullOrWhiteSpace(req.Gender) ? string.Empty : req.Gender,
+                Height = req.Height ?? 0,
+                CurrentWeight = req.CurrentWeight ?? 0.0,
+                TargetWeight = req.TargetWeight ?? 0.0,
+                ActivityLevel = req.ActivityLevel ?? ActivityLevel.Sedentary,
+                KanbanStage = req.KanbanStage ?? CrmStage.Lead,
+                EmpresaId = req.EmpresaId ?? 1,
                 Goals = req.Goals?.Select(g => new ClientGoal
                 {
                     Type = g.Type,
-                    Description = g.Description,
+                    Description = string.IsNullOrWhiteSpace(g.Description) ? "" : g.Description.Trim(),
                     TargetValue = g.TargetValue,
                     TargetDate = g.TargetDate,
                     Priority = g.Priority,
                     Status = g.Status ?? ClientStatus.Active
-                }).ToList() ?? new List<ClientGoal>(),
+                }).ToList(),
                 Measurements = req.Measurements?.Select(m => new ClientMeasurement
                 {
-                    Date = m.Date,
+                    Date = m.Date == default ? DateTime.UtcNow : m.Date,
+                    Weight = m.Weight ?? 0.0,
                     BodyFat = m.BodyFat,
                     MuscleMass = m.MuscleMass,
                     Waist = m.Waist,
@@ -348,7 +348,7 @@ namespace Services
 
             var previousMonth = DateTime.UtcNow.AddMonths(-2);
             var newPreviousMonth = allClients.Count(c => c.CreatedDate >= previousMonth && c.CreatedDate < currentMonth);
-            var monthlyGrowth = newPreviousMonth == 0 ? 0.0 : ((double)(newThisMonth - newPreviousMonth) / newPreviousMonth) * 100;
+            var monthlyGrowth = newPreviousMonth == 0 ? 0.0 : ((double)(newThisMonth - newPreviousMonth) / newPreviousMonth) * 100.0;
 
             var goalsAchieved = allClients
                 .SelectMany(c => c.Goals ?? Enumerable.Empty<ClientGoal>())
@@ -447,16 +447,16 @@ namespace Services
             Email = c.Email,
             Phone = c.Phone,
             Avatar = c.Avatar,
-            DateOfBirth = c.DateOfBirth,
-            Gender = c.Gender,
-            Height = c.Height,
-            CurrentWeight = c.CurrentWeight,
-            TargetWeight = c.TargetWeight,
+            DateOfBirth = c.DateOfBirth ?? DateTime.MinValue,
+            Gender = c.Gender ?? string.Empty,
+            Height = c.Height ?? 0,
+            CurrentWeight = c.CurrentWeight ?? 0.0,
+            TargetWeight = c.TargetWeight ?? 0.0,
             ActivityLevel = c.ActivityLevel,
             Status = c.Status,
             KanbanStage = c.KanbanStage,
             PlanId = c.PlanId,
-            EmpresaId = c.EmpresaId,
+            EmpresaId = c.EmpresaId ?? 0,
             Goals = c.Goals?.Select(g => new ClientGoalDTO
             {
                 Id = g.Id,
@@ -484,8 +484,7 @@ namespace Services
             MedicalConditions = c.MedicalConditions,
             Allergies = c.Allergies,
             CreatedDate = c.CreatedDate,
-            UpdatedDate = c.UpdatedDate
-        };
+            UpdatedDate = c.UpdatedDate};
         public async Task<DietSummaryDTO?> GetCurrentDietAsync(int clientId)
         {
             var diet = await _diets.GetCurrentByClientIdAsync(clientId);
@@ -513,19 +512,18 @@ namespace Services
             Email = c.Email,
             Phone = c.Phone,
             Avatar = c.Avatar,
-            DateOfBirth = c.DateOfBirth,
-            Gender = c.Gender,
-            Height = c.Height,
-            CurrentWeight = c.CurrentWeight,
-            TargetWeight  = c.TargetWeight,
+            DateOfBirth = c.DateOfBirth ?? DateTime.MinValue,
+            Gender = c.Gender ?? string.Empty,
+            Height = c.Height ?? 0,
+            CurrentWeight = c.CurrentWeight ?? 0.0,
+            TargetWeight = c.TargetWeight ?? 0.0,
             ActivityLevel = c.ActivityLevel,
             Status = c.Status,
             KanbanStage = c.KanbanStage,
             PlanId = c.PlanId,
-            EmpresaId = c.EmpresaId,
+            EmpresaId = c.EmpresaId ?? 0,
             CreatedDate = c.CreatedDate,
-            UpdatedDate = c.UpdatedDate
-        };
+            UpdatedDate = c.UpdatedDate};
 
 
         private static WorkoutSummaryDTO MapToWorkoutSummaryDTO(Core.Models.Workout.Workout w) => new WorkoutSummaryDTO

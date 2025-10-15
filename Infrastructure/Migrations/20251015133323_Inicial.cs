@@ -19,14 +19,14 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
                     Phone = table.Column<string>(type: "text", nullable: true),
                     Avatar = table.Column<string>(type: "text", nullable: true),
-                    DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Gender = table.Column<string>(type: "text", nullable: false),
-                    Height = table.Column<int>(type: "integer", nullable: false),
-                    CurrentWeight = table.Column<double>(type: "double precision", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Gender = table.Column<string>(type: "text", nullable: true),
+                    Height = table.Column<int>(type: "integer", nullable: true),
+                    CurrentWeight = table.Column<double>(type: "double precision", nullable: true),
                     TargetWeight = table.Column<double>(type: "double precision", nullable: true),
                     ActivityLevel = table.Column<int>(type: "integer", nullable: false),
                     Preferences_MealTimes_Breakfast = table.Column<string>(type: "text", nullable: false),
@@ -38,7 +38,7 @@ namespace Infrastructure.Migrations
                     Status = table.Column<int>(type: "integer", nullable: false),
                     KanbanStage = table.Column<int>(type: "integer", nullable: false),
                     PlanId = table.Column<string>(type: "text", nullable: true),
-                    EmpresaId = table.Column<int>(type: "integer", nullable: false),
+                    EmpresaId = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -91,12 +91,53 @@ namespace Infrastructure.Migrations
                     Allergens = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CommonPortions = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    Micros_VitaminA = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminC = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminD = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminE = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminK = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB1 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB2 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB3 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB6 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Folate = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB12 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Calcium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Iron = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Magnesium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Potassium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Zinc = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Sodium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Selenium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Phosphorus = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Copper = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Manganese = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Iodine = table.Column<decimal>(type: "numeric", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Foods", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MicronutrientTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Unit = table.Column<string>(type: "text", nullable: false),
+                    IsFatSolubleVitamin = table.Column<bool>(type: "boolean", nullable: false),
+                    IsTraceMineral = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MicronutrientTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -222,6 +263,35 @@ namespace Infrastructure.Migrations
                         name: "FK_ClientMeasurements_Clients_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FoodMicronutrients",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FoodId = table.Column<int>(type: "integer", nullable: false),
+                    MicronutrientTypeId = table.Column<int>(type: "integer", nullable: false),
+                    AmountPer100g = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FoodMicronutrients", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FoodMicronutrients_Foods_FoodId",
+                        column: x => x.FoodId,
+                        principalTable: "Foods",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FoodMicronutrients_MicronutrientTypes_MicronutrientTypeId",
+                        column: x => x.MicronutrientTypeId,
+                        principalTable: "MicronutrientTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -556,6 +626,28 @@ namespace Infrastructure.Migrations
                     DailySodium = table.Column<double>(type: "double precision", nullable: true),
                     Restrictions = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Micros_VitaminA = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminC = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminD = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminE = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminK = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB1 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB2 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB3 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB6 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Folate = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_VitaminB12 = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Calcium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Iron = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Magnesium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Potassium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Zinc = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Sodium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Selenium = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Phosphorus = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Copper = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Manganese = table.Column<decimal>(type: "numeric", nullable: true),
+                    Micros_Iodine = table.Column<decimal>(type: "numeric", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -1235,6 +1327,16 @@ namespace Infrastructure.Migrations
                 column: "TrainerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FoodMicronutrients_FoodId",
+                table: "FoodMicronutrients",
+                column: "FoodId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FoodMicronutrients_MicronutrientTypeId",
+                table: "FoodMicronutrients",
+                column: "MicronutrientTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Lessons_CourseId",
                 table: "Lessons",
                 column: "CourseId");
@@ -1407,6 +1509,9 @@ namespace Infrastructure.Migrations
                 name: "Feedbacks");
 
             migrationBuilder.DropTable(
+                name: "FoodMicronutrients");
+
+            migrationBuilder.DropTable(
                 name: "MessageAttachments");
 
             migrationBuilder.DropTable(
@@ -1453,6 +1558,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Foods");
+
+            migrationBuilder.DropTable(
+                name: "MicronutrientTypes");
 
             migrationBuilder.DropTable(
                 name: "PlanMeals");
