@@ -79,15 +79,16 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
 builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
-// ------- CORS (local + IP 209.97.156.138) -------
+// ------- CORS (produção + local) -------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
         policy.WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://209.97.156.138",
-                "https://209.97.156.138"
+                "https://antifitness.com.br",
+                "https://www.antifitness.com.br",
+                "https://api.antifitness.com.br"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
