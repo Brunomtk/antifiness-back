@@ -17,7 +17,9 @@ using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog configuration
+// ---------------------------------------------------------
+// SERILOG CONFIGURATION
+// ---------------------------------------------------------
 builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig
@@ -29,7 +31,9 @@ builder.Host.UseSerilog((context, loggerConfig) =>
         .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
 });
 
-// Add services to the container.
+// ---------------------------------------------------------
+// SERVICES & SWAGGER
+// ---------------------------------------------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -62,7 +66,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Add DI: DbContext, Repositories, UnitOfWork, Services, JWT Manager
+// ---------------------------------------------------------
+// DEPENDENCY INJECTION
+// ---------------------------------------------------------
 builder.Services.AddDIServices(builder.Configuration);
 
 // Services
@@ -79,7 +85,9 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
 builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
-// ------- CORS (produção + local) -------
+// ---------------------------------------------------------
+// CORS POLICY (Local + Produção)
+// ---------------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
@@ -96,16 +104,19 @@ builder.Services.AddCors(options =>
     );
 });
 
-// ------- Forwarded Headers (quando atrás de Nginx/Proxy) -------
+// ---------------------------------------------------------
+// FORWARDED HEADERS (atrás de Nginx)
+// ---------------------------------------------------------
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.KnownProxies.Add(IPAddress.Parse("209.97.156.138"));
     options.RequireHeaderSymmetry = false;
-    // options.ForwardLimit = 2; // se houver mais de um proxy no caminho
 });
 
-// Authentication with JWT Bearer
+// ---------------------------------------------------------
+// JWT Authentication
+// ---------------------------------------------------------
 var cfg = builder.Configuration;
 var key = Encoding.UTF8.GetBytes(cfg["Jwt:Key"]!);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -124,9 +135,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// ---------------------------------------------------------
+// APP BUILD
+// ---------------------------------------------------------
 var app = builder.Build();
 
-// Swagger UI em Dev e Prod (opcional ajustar)
+// Swagger UI
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
@@ -139,13 +153,36 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Deve vir cedo no pipeline (antes de autenticação/autorização)
 app.UseForwardedHeaders();
 
-// HTTPS redirection (mantenha se usa HTTPS direto; se Nginx termina TLS, ainda é ok)
-app.UseHttpsRedirection();
+// ---------------------------------------------------------
+// CORS Middleware Manual (resolve bloqueios via proxy)
+// ---------------------------------------------------------
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers["Origin"].ToString();
+    if (!string.IsNullOrEmpty(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Authorization, Origin, X-Requested-With, Content-Type, Accept";
+    }
 
-// CORS
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 204;
+        await context.Response.CompleteAsync();
+        return;
+    }
+
+    await next();
+});
+
+// ---------------------------------------------------------
+// RESTANTE DO PIPELINE
+// ---------------------------------------------------------
+app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigins");
 
-// Serilog request logging
 app.UseSerilogRequestLogging(options =>
 {
     options.GetLevel = (httpContext, elapsed, ex) =>
@@ -158,17 +195,15 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
-// Global exception handling
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-// Auth
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Aplica migrações (extensão da sua infra)
+// Aplica migrações automáticas
 app.MigrateDatabase();
 
-// Map controllers
+// Controllers
 app.MapControllers();
 
+// Run
 app.Run();
