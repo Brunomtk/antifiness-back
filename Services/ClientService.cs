@@ -17,25 +17,32 @@ namespace Services
 {
     public interface IClientService
     {
-        Task<IEnumerable<DietSummaryDTO>> GetDietHistoryAsync(int clientId);
-        Task<IEnumerable<WorkoutSummaryDTO>> GetWorkoutHistoryAsync(int clientId);
-        Task<DietSummaryDTO?> GetCurrentDietAsync(int clientId);
-        Task<WorkoutSummaryDTO?> GetCurrentWorkoutAsync(int clientId);
-        Task<ClientBasicDTO?> GetClientBasicByIdAsync(int id);
-        Task<ClientResponse?> CreateClientAsync(CreateClientRequest request);
-        Task<ClientResponse?> GetClientByIdAsync(int id);
         Task<ClientsPagedDTO> GetClientsPagedAsync(ClientFiltersDTO filters);
-        Task<bool> UpdateClientAsync(int id, UpdateClientRequest request);
+        Task<ClientResponse?> GetClientByIdAsync(int id);
+        Task<ClientResponse?> CreateClientAsync(CreateClientRequest req);
+        Task<bool> UpdateClientAsync(int id, UpdateClientRequest req);
         Task<bool> DeleteClientAsync(int id);
+
         Task<ClientMeasurementDTO?> AddWeightProgressAsync(int clientId, AddWeightProgressRequest request);
         Task<ClientMeasurementDTO?> AddMeasurementsProgressAsync(int clientId, AddMeasurementsProgressRequest request);
         Task<object?> AddPhotoProgressAsync(int clientId, AddPhotoProgressRequest request);
+
+        Task<DietSummaryDTO?> GetCurrentDietAsync(int clientId);
+        Task<WorkoutSummaryDTO?> GetCurrentWorkoutAsync(int clientId);
+
+        Task<ClientBasicDTO?> GetClientBasicByIdAsync(int id);
+        Task<IEnumerable<DietSummaryDTO>> GetDietHistoryAsync(int clientId);
+        Task<IEnumerable<WorkoutSummaryDTO>> GetWorkoutHistoryAsync(int clientId);
+
         Task<AchievementDTO?> AddAchievementAsync(int clientId, AddAchievementRequest request);
-        Task<ClientStatsDTO> GetClientStatsAsync();
         Task<IReadOnlyList<AchievementDTO>> GetAchievementsAsync(int clientId, int page = 1, int pageSize = 20);
+        Task<AchievementDTO?> UpdateAchievementAsync(int clientId, int achievementId, UpdateAchievementRequest request);
+        Task<bool> DeleteAchievementAsync(int clientId, int achievementId);
+
+        Task<ClientStatsDTO> GetClientStatsAsync();
     }
 
-    public sealed class ClientService : IClientService
+public sealed class ClientService : IClientService
     {
         private readonly IUnitOfWork _uow;
         private readonly IClientRepository _clients;
@@ -346,6 +353,50 @@ namespace Services
 
             return dto;
         }
+public async Task<bool> DeleteAchievementAsync(int clientId, int achievementId)
+{
+    var client = await _clients.GetByIdAsync(clientId);
+    if (client == null) return false;
+
+    if (!_achievements.TryGetValue(clientId, out var list) || list == null)
+        return false;
+
+    lock (list)
+    {
+        var idx = list.FindIndex(a => a.Id == achievementId);
+        if (idx < 0) return false;
+        list.RemoveAt(idx);
+        return true;
+    }
+}
+
+public async Task<AchievementDTO?> UpdateAchievementAsync(int clientId, int achievementId, UpdateAchievementRequest request)
+{
+    var client = await _clients.GetByIdAsync(clientId);
+    if (client == null) return null;
+
+    if (!_achievements.TryGetValue(clientId, out var list) || list == null)
+        return null;
+
+    lock (list)
+    {
+        var ach = list.FirstOrDefault(a => a.Id == achievementId);
+        if (ach == null) return null;
+
+        if (!string.IsNullOrWhiteSpace(request.Title)) ach.Title = request.Title!;
+        if (!string.IsNullOrWhiteSpace(request.Description)) ach.Description = request.Description!;
+        if (!string.IsNullOrWhiteSpace(request.Type)) ach.Type = request.Type!;
+        if (!string.IsNullOrWhiteSpace(request.Category)) ach.Category = request.Category!;
+        ach.UpdatedDate = DateTime.UtcNow;
+
+        return ach;
+    }
+}
+
+
+// [dedup] método GetAchievementsAsync removido (duplicado)
+
+
 
 
         

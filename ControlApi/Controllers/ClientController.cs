@@ -237,7 +237,30 @@ namespace ControlApi.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = clientId }, result);
         }
+        /// <summary>
+        /// Atualiza uma conquista de um cliente
+        /// </summary>
+        /// <param name="clientId">ID do cliente</param>
+        /// <param name="achievementId">ID da conquista</param>
+        /// <param name="request">Campos a atualizar</param>
+        [HttpPut("{clientId:int}/achievements/{achievementId:int}")]
+        [ProducesResponseType(typeof(AchievementDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<AchievementDTO>> UpdateAchievement(
+            int clientId,
+            int achievementId,
+            [FromBody] UpdateAchievementRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            var updated = await _clientService.UpdateAchievementAsync(clientId, achievementId, request);
+            if (updated == null)
+                return NotFound(new { message = "Cliente ou conquista não encontrada" });
+
+            return Ok(updated);
+        }
         /// <summary>
         /// Obtém estatísticas dos clientes
         /// </summary>
@@ -335,5 +358,20 @@ namespace ControlApi.Controllers
             return Ok(list);
         }
 
-}
+/// <summary>
+        /// Remove uma conquista de um cliente
+        /// </summary>
+        /// <param name="clientId">ID do cliente</param>
+        /// <param name="achievementId">ID da conquista</param>
+        [HttpDelete("{clientId:int}/achievements/{achievementId:int}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeleteAchievement(int clientId, int achievementId)
+        {
+            var removed = await _clientService.DeleteAchievementAsync(clientId, achievementId);
+            if (!removed)
+                return NotFound(new { message = "Cliente ou conquista não encontrada" });
+            return NoContent();
+        }
+    }
 }

@@ -14,5 +14,7 @@ namespace Core.DTO.Client
         public string Category { get; set; } = string.Empty;
 
         public DateTime UnlockedDate { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
     }
 }
