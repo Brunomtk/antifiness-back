@@ -201,10 +201,10 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da foto de progresso</param>
         /// <returns>Registro de foto criado</returns>
         [HttpPost("{clientId:int}/progress/photos")]
-        [ProducesResponseType(typeof(object), 201)]
+        [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<object>> AddPhotoProgress(int clientId, [FromBody] AddPhotoProgressRequest request)
+        public async Task<ActionResult<AchievementDTO>> AddPhotoProgress(int clientId, [FromBody] AddPhotoProgressRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -223,10 +223,10 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da conquista</param>
         /// <returns>Conquista criada</returns>
         [HttpPost("{clientId:int}/achievements")]
-        [ProducesResponseType(typeof(object), 201)]
+        [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<object>> AddAchievement(int clientId, [FromBody] AddAchievementRequest request)
+        public async Task<ActionResult<AchievementDTO>> AddAchievement(int clientId, [FromBody] AddAchievementRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -310,6 +310,29 @@ namespace ControlApi.Controllers
         {
             var items = await _clientService.GetWorkoutHistoryAsync(id);
             return Ok(items);
+        }
+
+
+        /// <summary>
+        /// Lista as conquistas do cliente (paginado)
+        /// </summary>
+        /// <param name="clientId">ID do cliente</param>
+        /// <param name="page">Página (>=1)</param>
+        /// <param name="pageSize">Tamanho da página (>=1)</param>
+        /// <returns>Lista de achievements</returns>
+        [HttpGet("{clientId:int}/achievements")]
+        [ProducesResponseType(typeof(IEnumerable<AchievementDTO>), 200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<IEnumerable<AchievementDTO>>> GetAchievements(
+            int clientId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest(new { message = "page e pageSize devem ser >= 1" });
+
+            var list = await _clientService.GetAchievementsAsync(clientId, page, pageSize);
+            return Ok(list);
         }
 
 }

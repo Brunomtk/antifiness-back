@@ -7,6 +7,8 @@ using Core.Models.Client;
 using Infrastructure.Repositories;
 using Saller.Infrastructure.ServiceExtension;
 using System;
+using System.Threading;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,8 +30,9 @@ namespace Services
         Task<ClientMeasurementDTO?> AddWeightProgressAsync(int clientId, AddWeightProgressRequest request);
         Task<ClientMeasurementDTO?> AddMeasurementsProgressAsync(int clientId, AddMeasurementsProgressRequest request);
         Task<object?> AddPhotoProgressAsync(int clientId, AddPhotoProgressRequest request);
-        Task<object?> AddAchievementAsync(int clientId, AddAchievementRequest request);
+        Task<AchievementDTO?> AddAchievementAsync(int clientId, AddAchievementRequest request);
         Task<ClientStatsDTO> GetClientStatsAsync();
+        Task<IReadOnlyList<AchievementDTO>> GetAchievementsAsync(int clientId, int page = 1, int pageSize = 20);
     }
 
     public sealed class ClientService : IClientService
@@ -38,6 +41,10 @@ namespace Services
         private readonly IClientRepository _clients;
         private readonly DietRepository _diets;
         private readonly WorkoutRepository _workouts;
+
+        // In-memory achievements store (to be replaced by EF entity later)
+        private static int _achievementSeq = 1000;
+        private static readonly ConcurrentDictionary<int, List<AchievementDTO>> _achievements = new();
 
         public ClientService(IUnitOfWork uow, DietRepository diets, WorkoutRepository workouts)
         {
@@ -315,15 +322,14 @@ namespace Services
             return photoProgress;
         }
 
-        public async Task<object?> AddAchievementAsync(int clientId, AddAchievementRequest request)
+        public async Task<AchievementDTO?> AddAchievementAsync(int clientId, AddAchievementRequest request)
         {
             var client = await _clients.GetByIdAsync(clientId);
             if (client == null) return null;
 
-            // Simulação de conquista
-            var achievement = new
+            var dto = new AchievementDTO
             {
-                Id = new Random().Next(1000, 9999),
+                Id = Interlocked.Increment(ref _achievementSeq),
                 ClientId = clientId,
                 Title = request.Title,
                 Description = request.Description,
@@ -332,10 +338,32 @@ namespace Services
                 UnlockedDate = DateTime.UtcNow
             };
 
-            return achievement;
+            var list = _achievements.GetOrAdd(clientId, _ => new List<AchievementDTO>());
+            lock (list)
+            {
+                list.Add(dto);
+            }
+
+            return dto;
         }
 
-        public async Task<ClientStatsDTO> GetClientStatsAsync()
+
+        
+        public Task<IReadOnlyList<AchievementDTO>> GetAchievementsAsync(int clientId, int page = 1, int pageSize = 20)
+        {
+            if (page <= 0 || pageSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(page), "page e pageSize devem ser positivos");
+
+            if (!_achievements.TryGetValue(clientId, out var list))
+                list = new List<AchievementDTO>();
+
+            var ordered = list.OrderByDescending(a => a.UnlockedDate);
+            var paged = ordered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return Task.FromResult<IReadOnlyList<AchievementDTO>>(paged);
+        }
+
+public async Task<ClientStatsDTO> GetClientStatsAsync()
         {
             var allClients = (await _clients.GetAll()).ToList();
             var total = allClients.Count;
