@@ -14,10 +14,10 @@ namespace Core.Models.Plan
         public required string Name { get; set; }
 
         [Required]
-        public MealType Type { get; set; }
+        public MealType? Type { get; set; }
 
         [Required]
-        public TimeSpan Time { get; set; }
+        public TimeSpan? Time { get; set; }
 
         [Required]
         public int Calories { get; set; }

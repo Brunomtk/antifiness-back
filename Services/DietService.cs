@@ -634,7 +634,7 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
                 DietId = meal.DietId,
                 Name = meal.Name,
                 Type = meal.Type,
-                TypeDescription = GetMealTypeDescription(meal.Type),
+                TypeDescription = meal.Type.HasValue ? GetMealTypeDescription(meal.Type.Value) : string.Empty,
                 ScheduledTime = meal.ScheduledTime,
                 Instructions = meal.Instructions,
                 TotalCalories = meal.TotalCalories,

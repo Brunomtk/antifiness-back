@@ -14,7 +14,7 @@ namespace Core.Models.Diet
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        public MealType Type { get; set; }
+        public MealType? Type { get; set; }
 
         public TimeSpan? ScheduledTime { get; set; }
 

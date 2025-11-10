@@ -7,7 +7,7 @@ namespace Core.DTO.Diet
         public int Id { get; set; }
         public int DietId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public MealType Type { get; set; }
+        public MealType? Type { get; set; }
         public string TypeDescription { get; set; } = string.Empty;
         public TimeSpan? ScheduledTime { get; set; }
         public string? Instructions { get; set; }

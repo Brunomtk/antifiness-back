@@ -8,9 +8,7 @@ namespace Core.DTO.Diet
         [Required(ErrorMessage = "Nome da refeição é obrigatório")]
         [StringLength(100, ErrorMessage = "Nome deve ter no máximo 100 caracteres")]
         public string Name { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Tipo da refeição é obrigatório")]
-        public MealType Type { get; set; }
+        public MealType? Type { get; set; }
 
         public TimeSpan? ScheduledTime { get; set; }
 
