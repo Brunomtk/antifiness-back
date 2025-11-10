@@ -42,6 +42,7 @@ namespace Infrastructure.Repositories
         MessageTemplateRepository MessageTemplates { get; }
         IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
         IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
+        IGenericRepository<ClientAchievement> ClientAchievements { get; }
         int Save();
         Task<int> SaveAsync();
     }
@@ -76,6 +77,7 @@ namespace Infrastructure.Repositories
         public MessageTemplateRepository MessageTemplates { get; }
         public IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
         public IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
+        public IGenericRepository<ClientAchievement> ClientAchievements { get; }
 
         public UnitOfWork(
             DbContextClass dbContext,
@@ -108,6 +110,8 @@ namespace Infrastructure.Repositories
             
                         MicronutrientTypes = new MicronutrientTypeRepository(_dbContext);
             FoodMicronutrients = new FoodMicronutrientRepository(_dbContext);
+            ClientAchievements = new GenericRepositoryImpl<ClientAchievement>(_dbContext);
+
 // Create concrete implementations of generic repositories
             WorkoutExercises = new WorkoutExerciseRepository(_dbContext);
             WorkoutProgress = new WorkoutProgressRepository(_dbContext);
@@ -226,5 +230,5 @@ namespace Infrastructure.Repositories
         public MessageReactionRepository(DbContextClass context) : base(context)
         {
         }
-    }
+}
 }

@@ -34,6 +34,7 @@ namespace Infrastructure
         public DbSet<Client> Clients { get; set; }
         public DbSet<ClientGoal> ClientGoals { get; set; }
         public DbSet<ClientMeasurement> ClientMeasurements { get; set; }
+        public DbSet<ClientAchievement> ClientAchievements { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<WorkoutExercise> WorkoutExercises { get; set; }
@@ -75,6 +76,7 @@ namespace Infrastructure
             modelBuilder.Entity<Client>().HasKey(e => e.Id);
             modelBuilder.Entity<ClientGoal>().HasKey(e => e.Id);
             modelBuilder.Entity<ClientMeasurement>().HasKey(e => e.Id);
+            modelBuilder.Entity<ClientAchievement>().HasKey(e => e.Id);
             modelBuilder.Entity<Exercise>().HasKey(e => e.Id);
             modelBuilder.Entity<Workout>().HasKey(e => e.Id);
             modelBuilder.Entity<WorkoutExercise>().HasKey(e => e.Id);
@@ -403,34 +405,5 @@ namespace Infrastructure
 
             base.OnModelCreating(modelBuilder);
         }
-
-        public override int SaveChanges()
-        {
-            UpdateTimestamps();
-            return base.SaveChanges();
-        }
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            UpdateTimestamps();
-            return base.SaveChangesAsync(cancellationToken);
-        }
-
-        private void UpdateTimestamps()
-        {
-            var now = DateTime.UtcNow;
-            var entries = ChangeTracker
-                .Entries<BaseModel>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
-
-            foreach (var entry in entries)
-            {
-                entry.Entity.UpdatedDate = now;
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedDate = now;
-                }
-            }
-        }
-    }
+}
 }

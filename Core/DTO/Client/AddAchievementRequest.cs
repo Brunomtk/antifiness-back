@@ -8,14 +8,11 @@ namespace Core.DTO.Client
         [StringLength(200, ErrorMessage = "Título deve ter no máximo 200 caracteres")]
         public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Descrição é obrigatória")]
         [StringLength(500, ErrorMessage = "Descrição deve ter no máximo 500 caracteres")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Tipo é obrigatório")]
-        public string Type { get; set; } = string.Empty;
+        public string? Type { get; set; }
 
-        [Required(ErrorMessage = "Categoria é obrigatória")]
-        public string Category { get; set; } = string.Empty;
+        public string? Category { get; set; }
     }
 }

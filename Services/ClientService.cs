@@ -8,7 +8,7 @@ using Infrastructure.Repositories;
 using Saller.Infrastructure.ServiceExtension;
 using System;
 using System.Threading;
-using System.Collections.Concurrent;
+// removed: using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,10 +49,6 @@ public sealed class ClientService : IClientService
         private readonly DietRepository _diets;
         private readonly WorkoutRepository _workouts;
 
-        // In-memory achievements store (to be replaced by EF entity later)
-        private static int _achievementSeq = 1000;
-        private static readonly ConcurrentDictionary<int, List<AchievementDTO>> _achievements = new();
-
         public ClientService(IUnitOfWork uow, DietRepository diets, WorkoutRepository workouts)
         {
             _uow = uow;
@@ -90,12 +86,11 @@ public sealed class ClientService : IClientService
                     TargetValue = g.TargetValue,
                     TargetDate = g.TargetDate,
                     Priority = g.Priority,
-                    Status = g.Status ?? ClientStatus.Active
                 }).ToList(),
                 Measurements = req.Measurements?.Select(m => new ClientMeasurement
                 {
                     Date = m.Date == default ? DateTime.UtcNow : m.Date,
-                    Weight = m.Weight ?? 0.0,
+                    Weight = m.Weight ?? 0d,
                     BodyFat = m.BodyFat,
                     MuscleMass = m.MuscleMass,
                     Waist = m.Waist,
@@ -323,329 +318,304 @@ public sealed class ClientService : IClientService
                 Date = request.Date,
                 Image = request.Image,
                 Notes = request.Notes,
-                CreatedDate = DateTime.UtcNow
             };
 
             return photoProgress;
         }
 
+        
         public async Task<AchievementDTO?> AddAchievementAsync(int clientId, AddAchievementRequest request)
         {
             var client = await _clients.GetByIdAsync(clientId);
             if (client == null) return null;
 
-            var dto = new AchievementDTO
+            var entity = new ClientAchievement
             {
-                Id = Interlocked.Increment(ref _achievementSeq),
                 ClientId = clientId,
-                Title = request.Title,
-                Description = request.Description,
+                Title = request.Title?.Trim() ?? string.Empty,
+                Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description!.Trim(),
                 Type = request.Type,
                 Category = request.Category,
-                UnlockedDate = DateTime.UtcNow
+                UnlockedDate = DateTime.UtcNow,
             };
 
-            var list = _achievements.GetOrAdd(clientId, _ => new List<AchievementDTO>());
-            lock (list)
+            await _uow.ClientAchievements.Add(entity);
+            var saved = await _uow.SaveAsync();
+            if (saved <= 0) return null;
+
+            return new AchievementDTO
             {
-                list.Add(dto);
-            }
-
-            return dto;
+                Id = entity.Id,
+                ClientId = entity.ClientId,
+                Title = entity.Title,
+                Description = entity.Description,
+                Type = entity.Type,
+                Category = entity.Category,
+                UnlockedDate = entity.UnlockedDate
+            };
         }
-public async Task<bool> DeleteAchievementAsync(int clientId, int achievementId)
-{
-    var client = await _clients.GetByIdAsync(clientId);
-    if (client == null) return false;
 
-    if (!_achievements.TryGetValue(clientId, out var list) || list == null)
-        return false;
-
-    lock (list)
-    {
-        var idx = list.FindIndex(a => a.Id == achievementId);
-        if (idx < 0) return false;
-        list.RemoveAt(idx);
-        return true;
-    }
-}
-
-public async Task<AchievementDTO?> UpdateAchievementAsync(int clientId, int achievementId, UpdateAchievementRequest request)
-{
-    var client = await _clients.GetByIdAsync(clientId);
-    if (client == null) return null;
-
-    if (!_achievements.TryGetValue(clientId, out var list) || list == null)
-        return null;
-
-    lock (list)
-    {
-        var ach = list.FirstOrDefault(a => a.Id == achievementId);
-        if (ach == null) return null;
-
-        if (!string.IsNullOrWhiteSpace(request.Title)) ach.Title = request.Title!;
-        if (!string.IsNullOrWhiteSpace(request.Description)) ach.Description = request.Description!;
-        if (!string.IsNullOrWhiteSpace(request.Type)) ach.Type = request.Type!;
-        if (!string.IsNullOrWhiteSpace(request.Category)) ach.Category = request.Category!;
-        ach.UpdatedDate = DateTime.UtcNow;
-
-        return ach;
-    }
-}
-
-
-// [dedup] método GetAchievementsAsync removido (duplicado)
-
-
-
-
-        
-        public Task<IReadOnlyList<AchievementDTO>> GetAchievementsAsync(int clientId, int page = 1, int pageSize = 20)
+        public async Task<IReadOnlyList<AchievementDTO>> GetAchievementsAsync(int clientId, int page = 1, int pageSize = 20)
         {
-            if (page <= 0 || pageSize <= 0)
-                throw new ArgumentOutOfRangeException(nameof(page), "page e pageSize devem ser positivos");
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 20;
 
-            if (!_achievements.TryGetValue(clientId, out var list))
-                list = new List<AchievementDTO>();
-
-            var ordered = list.OrderByDescending(a => a.UnlockedDate);
-            var paged = ordered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            return Task.FromResult<IReadOnlyList<AchievementDTO>>(paged);
+            var all = await _uow.ClientAchievements.GetAll();
+            var list = all.Cast<ClientAchievement>()
+                          .Where(a => a.ClientId == clientId)
+                          .OrderByDescending(a => a.UnlockedDate)
+                          .Skip((page - 1) * pageSize)
+                          .Take(pageSize)
+                          .Select(a => new AchievementDTO
+                          {
+                              Id = a.Id,
+                              ClientId = a.ClientId,
+                              Title = a.Title,
+                              Description = a.Description,
+                              Type = a.Type,
+                              Category = a.Category,
+                              UnlockedDate = a.UnlockedDate
+                          })
+                          .ToList();
+            return list;
         }
+
+        public async Task<AchievementDTO?> UpdateAchievementAsync(int clientId, int achievementId, UpdateAchievementRequest request)
+        {
+            var all = await _uow.ClientAchievements.GetAll();
+            var entity = all.Cast<ClientAchievement>().FirstOrDefault(a => a.Id == achievementId && a.ClientId == clientId);
+            if (entity == null) return null;
+
+            if (!string.IsNullOrWhiteSpace(request.Title)) entity.Title = request.Title!.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Description)) entity.Description = request.Description!.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Type)) entity.Type = request.Type;
+            if (!string.IsNullOrWhiteSpace(request.Category)) entity.Category = request.Category;
+
+            _uow.ClientAchievements.Update(entity);
+            var saved = await _uow.SaveAsync();
+            if (saved <= 0) return null;
+
+            return new AchievementDTO
+            {
+                Id = entity.Id,
+                ClientId = entity.ClientId,
+                Title = entity.Title,
+                Description = entity.Description,
+                Type = entity.Type,
+                Category = entity.Category,
+                UnlockedDate = entity.UnlockedDate
+            };
+        }
+
+        public async Task<bool> DeleteAchievementAsync(int clientId, int achievementId)
+        {
+            var all = await _uow.ClientAchievements.GetAll();
+            var entity = all.Cast<ClientAchievement>().FirstOrDefault(a => a.Id == achievementId && a.ClientId == clientId);
+            if (entity == null) return false;
+
+            _uow.ClientAchievements.Delete(entity);
+            return await _uow.SaveAsync() > 0;
+        }
+
+
+public async Task<DietSummaryDTO?> GetCurrentDietAsync(int clientId)
+{
+    var diet = await _diets.GetCurrentByClientIdAsync(clientId);
+    if (diet == null) return null;
+    return new DietSummaryDTO
+    {
+        Id = diet.Id,
+        Name = diet.Name ?? string.Empty,
+        Description = diet.Description,
+        ClientId = diet.ClientId,
+        EmpresaId = diet.EmpresaId,
+        DailyCalories = diet.DailyCalories,
+        DailyProtein = diet.DailyProtein,
+        DailyCarbs = diet.DailyCarbs,
+        DailyFat = diet.DailyFat,
+    };
+}
+
+
+public async Task<WorkoutSummaryDTO?> GetCurrentWorkoutAsync(int clientId)
+{
+    var w = await _workouts.GetCurrentByClientIdAsync(clientId);
+    if (w == null) return null;
+    return new WorkoutSummaryDTO
+    {
+        Id = w.Id,
+        Name = w.Name ?? string.Empty,
+        Description = w.Description,
+        EmpresaId = w.EmpresaId,
+        ClientId = w.ClientId,
+        Notes = w.Notes,
+};
+}
+
+
+public async Task<ClientBasicDTO?> GetClientBasicByIdAsync(int id)
+{
+    var c = await _clients.GetByIdAsync(id);
+    if (c == null) return null;
+    return new ClientBasicDTO
+    {
+        Id = c.Id,
+        Name = c.Name ?? string.Empty,
+        Email = c.Email ?? string.Empty,
+        Phone = c.Phone,
+        Avatar = c.Avatar,
+        DateOfBirth = c.DateOfBirth ?? DateTime.MinValue
+    };
+}
+
+
+public async Task<IEnumerable<DietSummaryDTO>> GetDietHistoryAsync(int clientId)
+{
+    var list = await _diets.GetByClientIdAsync(clientId);
+    return list.Select(d => new DietSummaryDTO
+    {
+        Id = d.Id,
+        Name = d.Name ?? string.Empty,
+        Description = d.Description,
+        ClientId = d.ClientId,
+        EmpresaId = d.EmpresaId,
+        DailyCalories = d.DailyCalories,
+        DailyProtein = d.DailyProtein,
+        DailyCarbs = d.DailyCarbs,
+        DailyFat = d.DailyFat,
+    });
+}
+
+
+public async Task<IEnumerable<WorkoutSummaryDTO>> GetWorkoutHistoryAsync(int clientId)
+{
+    var list = await _workouts.GetByClientIdAsync(clientId);
+    return list.Select(w => new WorkoutSummaryDTO
+    {
+        Id = w.Id,
+        Name = w.Name ?? string.Empty,
+        Description = w.Description,
+        EmpresaId = w.EmpresaId,
+        ClientId = w.ClientId,
+        Notes = w.Notes,
+});
+}
+
 
 public async Task<ClientStatsDTO> GetClientStatsAsync()
+{
+    var all = await _uow.Clients.GetAll();
+    var clients = all.Cast<Client>().ToList();
+    var total = clients.Count;
+    var active = clients.Count(c => c.Status == ClientStatus.Active);
+    var inactive = clients.Count(c => c.Status == ClientStatus.Inactive);
+    var paused = clients.Count(c => c.Status == ClientStatus.Paused);
+    var newThisMonth = clients.Count(c => c.CreatedDate.Month == DateTime.UtcNow.Month && c.CreatedDate.Year == DateTime.UtcNow.Year);
+    var goalsAchieved = clients.Count(c => (c.Goals?.Any() ?? false));
+    return new ClientStatsDTO
+    {
+        TotalClients = total,
+        ActiveClients = active,
+        InactiveClients = inactive,
+        PausedClients = paused,
+        NewClientsThisMonth = newThisMonth,
+        ClientsWithGoalsAchieved = goalsAchieved
+    };
+}
+
+
+
+private ClientPreferences MapToClientPreferences(ClientPreferencesDTO dto)
+{
+    if (dto == null) return new ClientPreferences();
+    return new ClientPreferences
+    {
+        DietaryRestrictions = dto.DietaryRestrictions?.ToList() ?? new List<string>(),
+        FavoriteFood = dto.FavoriteFood?.ToList() ?? new List<string>(),
+        DislikedFood = dto.DislikedFood?.ToList() ?? new List<string>(),
+        MealTimes = new MealTimes
         {
-            var allClients = (await _clients.GetAll()).ToList();
-            var total = allClients.Count;
-            var active = allClients.Count(c => c.Status == ClientStatus.Active);
-            var inactive = allClients.Count(c => c.Status == ClientStatus.Inactive);
-            var paused = allClients.Count(c => c.Status == ClientStatus.Paused);
+            Breakfast = dto.MealTimes?.Breakfast ?? string.Empty,
+            Lunch = dto.MealTimes?.Lunch ?? string.Empty,
+            Dinner = dto.MealTimes?.Dinner ?? string.Empty,
+            Snacks = dto.MealTimes?.Snacks?.ToList() ?? new List<string>()
+        },
+        WorkoutPreferences = new WorkoutPreferences
+        {
+            Types = dto.WorkoutPreferences?.Types?.ToList() ?? new List<string>(),
+            Duration = dto.WorkoutPreferences?.Duration ?? 0,
+            Frequency = dto.WorkoutPreferences?.Frequency ?? 0,
+            TimeOfDay = dto.WorkoutPreferences?.TimeOfDay ?? string.Empty
+        }
+    };
+}
 
-            var currentMonth = DateTime.UtcNow.AddMonths(-1);
-            var newThisMonth = allClients.Count(c => c.CreatedDate >= currentMonth);
 
-            var previousMonth = DateTime.UtcNow.AddMonths(-2);
-            var newPreviousMonth = allClients.Count(c => c.CreatedDate >= previousMonth && c.CreatedDate < currentMonth);
-            var monthlyGrowth = newPreviousMonth == 0 ? 0.0 : ((double)(newThisMonth - newPreviousMonth) / newPreviousMonth) * 100.0;
-
-            var goalsAchieved = allClients
-                .SelectMany(c => c.Goals ?? Enumerable.Empty<ClientGoal>())
-                .Count(g => g.Status == ClientStatus.Completed);
-
-            var weightLossValues = allClients
-                .Where(c => c.Measurements != null && c.Measurements.Any())
-                .Select(c =>
-                {
-                    var measurements = c.Measurements.OrderBy(m => m.Date).ToList();
-                    if (measurements.Count < 2) return 0.0;
-
-                    var firstWeight = measurements.First().Weight;
-                    var lastWeight = measurements.Last().Weight;
-                    return firstWeight - lastWeight;
-                })
-                .Where(w => w > 0)
-                .ToList();
-
-            var avgWeightLoss = weightLossValues.Any() ? weightLossValues.Average() : 0.0;
-
-            var retention = total == 0 ? 0.0 :
-                allClients.Count(c => (DateTime.UtcNow - c.CreatedDate).TotalDays >= 30 && c.Status == ClientStatus.Active) * 100.0 / total;
-
-            var clientsWithNutritionist = allClients.Count(c => c.EmpresaId > 0);
-            var clientsWithPlans = allClients.Count(c => !string.IsNullOrEmpty(c.PlanId));
-
-            return new ClientStatsDTO
+private ClientResponse MapToResponse(Client c)
+{
+    return new ClientResponse
+    {
+        Id = c.Id,
+        Name = c.Name ?? string.Empty,
+        Email = c.Email ?? string.Empty,
+        Phone = c.Phone,
+        Avatar = c.Avatar,
+        DateOfBirth = c.DateOfBirth ?? DateTime.MinValue,
+        Gender = c.Gender?.ToString() ?? string.Empty,
+        Height = c.Height ?? 0,
+        CurrentWeight = c.CurrentWeight ?? 0d,
+        TargetWeight = c.TargetWeight ?? 0d,
+        ActivityLevel = c.ActivityLevel,
+        Status = c.Status,
+        KanbanStage = c.KanbanStage,
+        PlanId = c.PlanId,
+        EmpresaId = c.EmpresaId ?? 0,
+        Goals = c.Goals?.Select(g => new ClientGoalDTO
+        {
+            Id = g.Id,
+            Type = g.Type,
+            Description = g.Description,
+            TargetValue = g.TargetValue,
+            TargetDate = g.TargetDate,
+            Priority = g.Priority,
+            Status = g.Status,
+        }).ToList(),
+        Measurements = c.Measurements?.Select(m => new ClientMeasurementDTO
+        {
+            Date = m.Date,
+            Weight = m.Weight,
+            BodyFat = m.BodyFat,
+            MuscleMass = m.MuscleMass,
+            Waist = m.Waist,
+            Chest = m.Chest,
+            Arms = m.Arms,
+            Thighs = m.Thighs,
+            Notes = m.Notes
+        }).ToList(),
+        Preferences = new ClientPreferencesDTO
+        {
+            DietaryRestrictions = c.Preferences?.DietaryRestrictions?.ToList() ?? new List<string>(),
+            FavoriteFood = c.Preferences?.FavoriteFood?.ToList() ?? new List<string>(),
+            DislikedFood = c.Preferences?.DislikedFood?.ToList() ?? new List<string>(),
+            MealTimes = new MealTimesDTO
             {
-                TotalClients = total,
-                ActiveClients = active,
-                InactiveClients = inactive,
-                PausedClients = paused,
-                NewClientsThisMonth = newThisMonth,
-                ClientsWithGoalsAchieved = goalsAchieved,
-                AverageWeightLoss = Math.Round(avgWeightLoss, 2),
-                RetentionRate = Math.Round(retention, 2),
-                MonthlyGrowthPercentage = Math.Round(monthlyGrowth, 2),
-                ClientsWithNutritionist = clientsWithNutritionist,
-                ClientsWithActivePlan = clientsWithPlans
-            };
-        }
-
-        private ClientPreferences MapToClientPreferences(ClientPreferencesDTO dto)
-        {
-            return new ClientPreferences
+                Breakfast = c.Preferences?.MealTimes?.Breakfast ?? string.Empty,
+                Lunch = c.Preferences?.MealTimes?.Lunch ?? string.Empty,
+                Dinner = c.Preferences?.MealTimes?.Dinner ?? string.Empty,
+                Snacks = c.Preferences?.MealTimes?.Snacks?.ToList() ?? new List<string>()
+            },
+            WorkoutPreferences = new WorkoutPreferencesDTO
             {
-                DietaryRestrictions = dto.DietaryRestrictions ?? new List<string>(),
-                FavoriteFood = dto.FavoriteFood ?? new List<string>(),
-                DislikedFood = dto.DislikedFood ?? new List<string>(),
-                MealTimes = new MealTimes
-                {
-                    Breakfast = dto.MealTimes?.Breakfast ?? string.Empty,
-                    Lunch = dto.MealTimes?.Lunch ?? string.Empty,
-                    Dinner = dto.MealTimes?.Dinner ?? string.Empty,
-                    Snacks = dto.MealTimes?.Snacks ?? new List<string>()
-                },
-                WorkoutPreferences = new WorkoutPreferences
-                {
-                    Types = dto.WorkoutPreferences?.Types ?? new List<string>(),
-                    Duration = dto.WorkoutPreferences?.Duration ?? 60,
-                    Frequency = dto.WorkoutPreferences?.Frequency ?? 3,
-                    TimeOfDay = dto.WorkoutPreferences?.TimeOfDay ?? string.Empty
-                }
-            };
-        }
-
-        private ClientPreferencesDTO MapToClientPreferencesDTO(ClientPreferences preferences)
-        {
-            return new ClientPreferencesDTO
-            {
-                DietaryRestrictions = preferences.DietaryRestrictions ?? new List<string>(),
-                FavoriteFood = preferences.FavoriteFood ?? new List<string>(),
-                DislikedFood = preferences.DislikedFood ?? new List<string>(),
-                MealTimes = new MealTimesDTO
-                {
-                    Breakfast = preferences.MealTimes?.Breakfast ?? string.Empty,
-                    Lunch = preferences.MealTimes?.Lunch ?? string.Empty,
-                    Dinner = preferences.MealTimes?.Dinner ?? string.Empty,
-                    Snacks = preferences.MealTimes?.Snacks ?? new List<string>()
-                },
-                WorkoutPreferences = new WorkoutPreferencesDTO
-                {
-                    Types = preferences.WorkoutPreferences?.Types ?? new List<string>(),
-                    Duration = preferences.WorkoutPreferences?.Duration ?? 60,
-                    Frequency = preferences.WorkoutPreferences?.Frequency ?? 3,
-                    TimeOfDay = preferences.WorkoutPreferences?.TimeOfDay ?? string.Empty
-                }
-            };
-        }
-
-        private ClientResponse MapToResponse(Client c) => new ClientResponse
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Email = c.Email,
-            Phone = c.Phone,
-            Avatar = c.Avatar,
-            DateOfBirth = c.DateOfBirth ?? DateTime.MinValue,
-            Gender = c.Gender ?? string.Empty,
-            Height = c.Height ?? 0,
-            CurrentWeight = c.CurrentWeight ?? 0.0,
-            TargetWeight = c.TargetWeight ?? 0.0,
-            ActivityLevel = c.ActivityLevel,
-            Status = c.Status,
-            KanbanStage = c.KanbanStage,
-            PlanId = c.PlanId,
-            EmpresaId = c.EmpresaId ?? 0,
-            Goals = c.Goals?.Select(g => new ClientGoalDTO
-            {
-                Id = g.Id,
-                Type = g.Type,
-                Description = g.Description,
-                TargetValue = g.TargetValue,
-                TargetDate = g.TargetDate,
-                Priority = g.Priority,
-                Status = g.Status
-            }).ToList() ?? new List<ClientGoalDTO>(),
-            Measurements = c.Measurements?.Select(m => new ClientMeasurementDTO
-            {
-                Id = m.Id,
-                Date = m.Date,
-                Weight = m.Weight,
-                BodyFat = m.BodyFat,
-                MuscleMass = m.MuscleMass,
-                Waist = m.Waist,
-                Chest = m.Chest,
-                Arms = m.Arms,
-                Thighs = m.Thighs,
-                Notes = m.Notes
-            }).ToList() ?? new List<ClientMeasurementDTO>(),
-            Preferences = c.Preferences != null ? MapToClientPreferencesDTO(c.Preferences) : new ClientPreferencesDTO(),
-            MedicalConditions = c.MedicalConditions,
-            Allergies = c.Allergies,
-            CreatedDate = c.CreatedDate,
-            UpdatedDate = c.UpdatedDate};
-        public async Task<DietSummaryDTO?> GetCurrentDietAsync(int clientId)
-        {
-            var diet = await _diets.GetCurrentByClientIdAsync(clientId);
-            return diet != null ? MapToDietSummaryDTO(diet) : null;
-        }
-
-        public async Task<WorkoutSummaryDTO?> GetCurrentWorkoutAsync(int clientId)
-        {
-            var w = await _workouts.GetCurrentByClientIdAsync(clientId);
-            return w != null ? MapToWorkoutSummaryDTO(w) : null;
-        }
-
-        public async Task<ClientBasicDTO?> GetClientBasicByIdAsync(int id)
-        {
-            var client = await _clients.GetByIdAsync(id);
-            if (client == null) return null;
-            return MapToClientBasicDTO(client);
-        }
-
-
-        private static ClientBasicDTO MapToClientBasicDTO(Client c) => new ClientBasicDTO
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Email = c.Email,
-            Phone = c.Phone,
-            Avatar = c.Avatar,
-            DateOfBirth = c.DateOfBirth ?? DateTime.MinValue,
-            Gender = c.Gender ?? string.Empty,
-            Height = c.Height ?? 0,
-            CurrentWeight = c.CurrentWeight ?? 0.0,
-            TargetWeight = c.TargetWeight ?? 0.0,
-            ActivityLevel = c.ActivityLevel,
-            Status = c.Status,
-            KanbanStage = c.KanbanStage,
-            PlanId = c.PlanId,
-            EmpresaId = c.EmpresaId ?? 0,
-            CreatedDate = c.CreatedDate,
-            UpdatedDate = c.UpdatedDate};
-
-
-        private static WorkoutSummaryDTO MapToWorkoutSummaryDTO(Core.Models.Workout.Workout w) => new WorkoutSummaryDTO
-        {
-            Id = w.Id,
-            Name = w.Name,
-            Description = w.Description,
-            EmpresaId = w.EmpresaId,
-            ClientId = w.ClientId,
-            Notes = w.Notes,
-            CreatedDate = w.CreatedDate,
-            UpdatedDate = w.UpdatedDate
-        };
-
-
-        
-        public async Task<IEnumerable<DietSummaryDTO>> GetDietHistoryAsync(int clientId)
-        {
-            var diets = await _diets.GetByClientIdAsync(clientId);
-            return diets.Select(MapToDietSummaryDTO).ToList();
-        }
-
-        public async Task<IEnumerable<WorkoutSummaryDTO>> GetWorkoutHistoryAsync(int clientId)
-        {
-            var wrks = await _workouts.GetByClientIdAsync(clientId);
-            return wrks.Select(MapToWorkoutSummaryDTO).ToList();
-        }
-
-private static DietSummaryDTO MapToDietSummaryDTO(Core.Models.Diet.Diet d) => new DietSummaryDTO
-        {
-            Id = d.Id,
-            Name = d.Name,
-            Description = d.Description,
-            ClientId = d.ClientId,
-            EmpresaId = d.EmpresaId,
-            DailyCalories = d.DailyCalories,
-            DailyProtein  = d.DailyProtein,
-            DailyCarbs    = d.DailyCarbs,
-            DailyFat      = d.DailyFat,
-            CreatedDate = d.CreatedDate,
-            UpdatedDate = d.UpdatedDate
-        };
-
+                Types = c.Preferences?.WorkoutPreferences?.Types?.ToList() ?? new List<string>(),
+                Duration = c.Preferences?.WorkoutPreferences?.Duration ?? 0,
+                Frequency = c.Preferences?.WorkoutPreferences?.Frequency ?? 0,
+                TimeOfDay = c.Preferences?.WorkoutPreferences?.TimeOfDay ?? string.Empty
+            }
+        },
+        MedicalConditions = c.MedicalConditions?.ToList(),
+        Allergies = c.Allergies?.ToList(),
+    };
+}
 
 }
 }

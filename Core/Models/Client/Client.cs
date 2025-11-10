@@ -33,6 +33,8 @@ public CrmStage KanbanStage { get; set; } = CrmStage.Lead;
         public ICollection<ClientGoal>? Goals { get; set; }
         public ICollection<ClientMeasurement>? Measurements { get; set; }
 
+        public ICollection<ClientAchievement>? Achievements { get; set; }
+
         [NotMapped]
         public IList<string>? MedicalConditions { get; set; }
         [NotMapped]
