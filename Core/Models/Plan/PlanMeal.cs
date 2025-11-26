@@ -16,7 +16,6 @@ namespace Core.Models.Plan
         [Required]
         public MealType? Type { get; set; }
 
-        [Required]
         public TimeSpan? Time { get; set; }
 
         [Required]

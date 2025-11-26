@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Core.DTO.Diet
 {
     public class DietMealFoodResponse
@@ -12,5 +14,7 @@ namespace Core.DTO.Diet
         public double? Protein { get; set; }
         public double? Carbs { get; set; }
         public double? Fat { get; set; }
+
+        public List<DietMealFoodSubstitutionResponse> Substitutions { get; set; } = new();
     }
 }

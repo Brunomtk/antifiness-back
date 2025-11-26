@@ -16,7 +16,7 @@ namespace Core.Models.Diet
         public string? Description { get; set; }
 
         [Required]
-        public FoodCategory Category { get; set; }
+        public FoodCategory? Category { get; set; }
 
         // Valores nutricionais por 100g
         [Required]

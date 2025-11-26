@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace Core.Models.Workout
 {
@@ -36,5 +37,7 @@ namespace Core.Models.Workout
 
         [ForeignKey("ExerciseId")]
         public virtual Exercise Exercise { get; set; } = null!;
+
+        public virtual ICollection<WorkoutExerciseSubstitution> Substitutions { get; set; } = new List<WorkoutExerciseSubstitution>();
     }
 }

@@ -8,7 +8,7 @@ namespace Core.DTO.Diet
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public FoodCategory Category { get; set; }
+        public FoodCategory? Category { get; set; }
         public string CategoryDescription { get; set; } = string.Empty;
         public double CaloriesPer100g { get; set; }
         public double? ProteinPer100g { get; set; }

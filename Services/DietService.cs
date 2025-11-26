@@ -28,6 +28,12 @@ namespace Services
         Task<bool> DeleteDietMealAsync(int mealId);
         Task<bool> CompleteMealAsync(int mealId);
 
+        // Supplements
+        Task<List<DietSupplementResponse>> GetDietSupplementsAsync(int dietId);
+        Task<DietSupplementResponse> CreateDietSupplementAsync(int dietId, CreateDietSupplementRequest request);
+        Task<DietSupplementResponse?> UpdateDietSupplementAsync(int dietId, int supplementId, UpdateDietSupplementRequest request);
+        Task<bool> DeleteDietSupplementAsync(int dietId, int supplementId);
+
         // Foods
         Task<List<FoodResponse>> GetAllFoodsAsync(string? search = null, FoodCategory? category = null);
         Task<FoodResponse?> GetFoodByIdAsync(int id);
@@ -311,8 +317,28 @@ namespace Services
                         Calories = food.CaloriesPer100g * multiplier,
                         Protein = food.ProteinPer100g * multiplier,
                         Carbs = food.CarbsPer100g * multiplier,
-                        Fat = food.FatPer100g * multiplier
+                        Fat = food.FatPer100g * multiplier,
+                        Substitutions = new List<DietMealFoodSubstitution>()
                     };
+
+                    if (foodRequest.Substitutions != null && foodRequest.Substitutions.Count > 0)
+                    {
+                        foreach (var subRequest in foodRequest.Substitutions)
+                        {
+                            var subFood = allFoods.FirstOrDefault(f => f.Id == subRequest.FoodId);
+                            if (subFood == null) continue;
+
+                            var substitution = new DietMealFoodSubstitution
+                            {
+                                FoodId = subFood.Id,
+                                Notes = subRequest.Notes,
+                                CreatedDate = DateTime.UtcNow,
+                                UpdatedDate = DateTime.UtcNow
+                            };
+
+                            mealFood.Substitutions.Add(substitution);
+                        }
+                    }
 
                     meal.Foods.Add(mealFood);
 
@@ -380,8 +406,28 @@ namespace Services
                             Calories = food.CaloriesPer100g * multiplier,
                             Protein = food.ProteinPer100g * multiplier,
                             Carbs = food.CarbsPer100g * multiplier,
-                            Fat = food.FatPer100g * multiplier
+                            Fat = food.FatPer100g * multiplier,
+                            Substitutions = new List<DietMealFoodSubstitution>()
                         };
+
+                        if (foodRequest.Substitutions != null && foodRequest.Substitutions.Count > 0)
+                        {
+                            foreach (var subRequest in foodRequest.Substitutions)
+                            {
+                                var subFood = allFoods.FirstOrDefault(f => f.Id == subRequest.FoodId);
+                                if (subFood == null) continue;
+
+                                var substitution = new DietMealFoodSubstitution
+                                {
+                                    FoodId = subFood.Id,
+                                    Notes = subRequest.Notes,
+                                    CreatedDate = DateTime.UtcNow,
+                                    UpdatedDate = DateTime.UtcNow
+                                };
+
+                                mealFood.Substitutions.Add(substitution);
+                            }
+                        }
 
                         meal.Foods.Add(mealFood);
 
@@ -588,10 +634,93 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
             return MapToDietProgressResponse(progress);
         }
 
+        // ===== Supplements =====
+        public async Task<List<DietSupplementResponse>> GetDietSupplementsAsync(int dietId)
+        {
+            var diet = await _dietRepository.GetByIdDetailedAsync(dietId);
+            if (diet == null) return new List<DietSupplementResponse>();
+
+            var supplements = diet.Supplements ?? new List<DietSupplement>();
+
+            return supplements
+                .OrderBy(s => s.Name)
+                .Select(MapToDietSupplementResponse)
+                .ToList();
+        }
+
+        public async Task<DietSupplementResponse> CreateDietSupplementAsync(int dietId, CreateDietSupplementRequest request)
+        {
+            var diet = await _dietRepository.GetByIdWithSupplementsForUpdateAsync(dietId);
+            if (diet == null) throw new InvalidOperationException("Dieta não encontrada.");
+
+            diet.Supplements ??= new List<DietSupplement>();
+
+            var supplement = new DietSupplement
+            {
+                DietId = dietId,
+                Name = request.Name,
+                Quantity = request.Quantity,
+                Instructions = request.Instructions,
+                CreatedDate = DateTime.UtcNow,
+                UpdatedDate = DateTime.UtcNow
+            };
+
+            diet.Supplements.Add(supplement);
+
+            _dietRepository.Update(diet);
+            await _unitOfWork.SaveAsync();
+
+            return MapToDietSupplementResponse(supplement);
+        }
+
+        public async Task<DietSupplementResponse?> UpdateDietSupplementAsync(int dietId, int supplementId, UpdateDietSupplementRequest request)
+        {
+            var diet = await _dietRepository.GetByIdWithSupplementsForUpdateAsync(dietId);
+            if (diet == null) return null;
+
+            diet.Supplements ??= new List<DietSupplement>();
+            var supplement = diet.Supplements.FirstOrDefault(s => s.Id == supplementId);
+            if (supplement == null) return null;
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                supplement.Name = request.Name;
+
+            if (request.Quantity != null)
+                supplement.Quantity = request.Quantity;
+
+            if (request.Instructions != null)
+                supplement.Instructions = request.Instructions;
+
+            supplement.UpdatedDate = DateTime.UtcNow;
+
+            _dietRepository.Update(diet);
+            await _unitOfWork.SaveAsync();
+
+            return MapToDietSupplementResponse(supplement);
+        }
+
+        public async Task<bool> DeleteDietSupplementAsync(int dietId, int supplementId)
+        {
+            var diet = await _dietRepository.GetByIdWithSupplementsForUpdateAsync(dietId);
+            if (diet == null) return false;
+
+            diet.Supplements ??= new List<DietSupplement>();
+            var supplement = diet.Supplements.FirstOrDefault(s => s.Id == supplementId);
+            if (supplement == null) return false;
+
+            diet.Supplements.Remove(supplement);
+
+            _dietRepository.Update(diet);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
         // ===== Mapping =====
         private DietResponse MapToDietResponse(Diet diet)
         {
             var meals = diet.Meals ?? new List<DietMeal>();
+            var supplements = diet.Supplements ?? new List<DietSupplement>();
             var completedMeals = meals.Count(m => m.IsCompleted);
             var totalMeals = meals.Count;
 
@@ -622,7 +751,8 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
                 CreatedAt = diet.CreatedDate,
                 UpdatedAt = diet.UpdatedDate,
                 Meals = meals.Select(MapToDietMealResponse).ToList(),
-                Micronutrients = SumMicrosFromDiet(diet)
+                Micronutrients = SumMicrosFromDiet(diet),
+                Supplements = supplements.Select(MapToDietSupplementResponse).ToList()
             };
         }
 
@@ -674,7 +804,7 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
                 Name = food.Name,
                 Description = food.Description,
                 Category = food.Category,
-                CategoryDescription = GetFoodCategoryDescription(food.Category),
+                CategoryDescription = food.Category.HasValue ? GetFoodCategoryDescription(food.Category.Value) : string.Empty,
                 CaloriesPer100g = food.CaloriesPer100g,
                 ProteinPer100g = food.ProteinPer100g,
                 CarbsPer100g = food.CarbsPer100g,
@@ -708,6 +838,21 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
                 SatisfactionLevel = progress.SatisfactionLevel,
                 CreatedAt = progress.CreatedDate,
                 UpdatedAt = progress.UpdatedDate
+            };
+        }
+
+
+        private DietSupplementResponse MapToDietSupplementResponse(DietSupplement supplement)
+        {
+            return new DietSupplementResponse
+            {
+                Id = supplement.Id,
+                DietId = supplement.DietId,
+                Name = supplement.Name,
+                Quantity = supplement.Quantity,
+                Instructions = supplement.Instructions,
+                CreatedAt = supplement.CreatedDate,
+                UpdatedAt = supplement.UpdatedDate
             };
         }
 

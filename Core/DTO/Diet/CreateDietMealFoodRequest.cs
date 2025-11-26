@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Core.DTO.Diet
@@ -13,5 +14,7 @@ namespace Core.DTO.Diet
 
         [StringLength(50, ErrorMessage = "Unidade deve ter no máximo 50 caracteres")]
         public string Unit { get; set; } = "g";
+
+        public List<CreateDietMealFoodSubstitutionRequest> Substitutions { get; set; } = new();
     }
 }

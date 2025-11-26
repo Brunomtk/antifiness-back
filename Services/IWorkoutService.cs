@@ -24,7 +24,14 @@ namespace Services
         Task<WorkoutsPagedDTO> GetTemplatesAsync(WorkoutFiltersDTO filters);
         Task<WorkoutResponse?> InstantiateTemplateAsync(int templateId, CreateWorkoutRequest? overrides = null);
 
-        // Progress methods
+        
+        // Exercise substitutions
+        Task<List<WorkoutExerciseSubstitutionResponse>> GetWorkoutExerciseSubstitutionsAsync(int workoutId, int workoutExerciseId);
+        Task<WorkoutExerciseSubstitutionResponse> CreateWorkoutExerciseSubstitutionAsync(int workoutId, int workoutExerciseId, CreateWorkoutExerciseSubstitutionRequest request);
+        Task<WorkoutExerciseSubstitutionResponse?> UpdateWorkoutExerciseSubstitutionAsync(int workoutId, int workoutExerciseId, int substitutionId, UpdateWorkoutExerciseSubstitutionRequest request);
+        Task<bool> DeleteWorkoutExerciseSubstitutionAsync(int workoutId, int workoutExerciseId, int substitutionId);
+
+// Progress methods
         Task<List<WorkoutProgressResponse>> GetWorkoutProgressAsync(int workoutId);
         Task<WorkoutProgressResponse> CreateWorkoutProgressAsync(int workoutId, CreateWorkoutProgressRequest request);
 

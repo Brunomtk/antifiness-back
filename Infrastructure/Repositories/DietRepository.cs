@@ -21,6 +21,8 @@ namespace Infrastructure.Repositories
                 .Include(d => d.Client)
                 .Include(d => d.Empresa)
                 .Include(d => d.Meals).ThenInclude(m => m.Foods).ThenInclude(f => f.Food)
+                .Include(d => d.Meals).ThenInclude(m => m.Foods).ThenInclude(f => f.Substitutions).ThenInclude(s => s.Food)
+                .Include(d => d.Supplements)
                 .Include(d => d.Progress)
                 .OrderByDescending(d => d.CreatedDate)
                 .AsNoTracking()
@@ -33,6 +35,8 @@ namespace Infrastructure.Repositories
                 .Include(d => d.Client)
                 .Include(d => d.Empresa)
                 .Include(d => d.Meals).ThenInclude(m => m.Foods).ThenInclude(f => f.Food)
+                .Include(d => d.Meals).ThenInclude(m => m.Foods).ThenInclude(f => f.Substitutions).ThenInclude(s => s.Food)
+                .Include(d => d.Supplements)
                 .Include(d => d.Progress)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == id);
@@ -85,6 +89,14 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
     
+
+        public async Task<Diet?> GetByIdWithSupplementsForUpdateAsync(int id)
+        {
+            return await _context.Set<Diet>()
+                .Include(d => d.Supplements)
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
+
         public async Task<Diet?> GetByIdWithProgressAsync(int id)
         {
             return await _context.Set<Diet>()
@@ -98,6 +110,19 @@ namespace Infrastructure.Repositories
             return await _context.Set<Diet>()
                 .Include(d => d.Meals).ThenInclude(m => m.Foods)
                 .FirstOrDefaultAsync(d => d.Meals.Any(m => m.Id == mealId));
+        }
+
+        
+
+
+        public async Task<DietMealFood?> GetMealFoodWithSubstitutionsForUpdateAsync(int mealId, int mealFoodId)
+        {
+            return await _context.Set<DietMealFood>()
+                .Include(mf => mf.Substitutions)
+                    .ThenInclude(s => s.Food)
+                .Include(mf => mf.Food)
+                .Where(mf => mf.MealId == mealId && mf.Id == mealFoodId)
+                .FirstOrDefaultAsync();
         }
 
     }

@@ -60,7 +60,19 @@ namespace Infrastructure.Repositories
         {
             return await _context.Set<Workout>()
                 .Include(w => w.WorkoutExercises)
+                    .ThenInclude(we => we.Substitutions)
                 .FirstOrDefaultAsync(w => w.Id == id);
+        }
+
+
+        public async Task<WorkoutExercise?> GetWorkoutExerciseWithSubstitutionsForUpdateAsync(int workoutId, int workoutExerciseId)
+        {
+            return await _context.Set<WorkoutExercise>()
+                .Include(we => we.Substitutions)
+                    .ThenInclude(s => s.Exercise)
+                .Include(we => we.Exercise)
+                .Where(we => we.WorkoutId == workoutId && we.Id == workoutExerciseId)
+                .FirstOrDefaultAsync();
         }
 
     }

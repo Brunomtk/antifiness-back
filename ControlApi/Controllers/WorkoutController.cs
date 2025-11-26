@@ -232,5 +232,109 @@ namespace ControlApi.Controllers
                 return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
             }
         }
+
+        #region Exercise substitutions
+
+        /// <summary>
+        /// Lista as substituições de um exercício dentro de um treino.
+        /// </summary>
+        [HttpGet("{workoutId}/exercises/{workoutExerciseId}/substitutions")]
+        public async Task<ActionResult<List<WorkoutExerciseSubstitutionResponse>>> GetWorkoutExerciseSubstitutions(
+            int workoutId, int workoutExerciseId)
+        {
+            try
+            {
+                var items = await _workoutService.GetWorkoutExerciseSubstitutionsAsync(workoutId, workoutExerciseId);
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Cria uma nova substituição para um exercício do treino.
+        /// </summary>
+        [HttpPost("{workoutId}/exercises/{workoutExerciseId}/substitutions")]
+        public async Task<ActionResult<WorkoutExerciseSubstitutionResponse>> CreateWorkoutExerciseSubstitution(
+            int workoutId,
+            int workoutExerciseId,
+            [FromBody] CreateWorkoutExerciseSubstitutionRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var created = await _workoutService.CreateWorkoutExerciseSubstitutionAsync(workoutId, workoutExerciseId, request);
+                return CreatedAtAction(nameof(GetWorkoutExerciseSubstitutions), new { workoutId, workoutExerciseId }, created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Atualiza uma substituição de exercício do treino.
+        /// </summary>
+        [HttpPut("{workoutId}/exercises/{workoutExerciseId}/substitutions/{substitutionId}")]
+        public async Task<ActionResult<WorkoutExerciseSubstitutionResponse>> UpdateWorkoutExerciseSubstitution(
+            int workoutId,
+            int workoutExerciseId,
+            int substitutionId,
+            [FromBody] UpdateWorkoutExerciseSubstitutionRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var updated = await _workoutService.UpdateWorkoutExerciseSubstitutionAsync(workoutId, workoutExerciseId, substitutionId, request);
+                if (updated == null)
+                    return NotFound(new { message = "Substituição não encontrada para este exercício/treino" });
+
+                return Ok(updated);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Remove uma substituição de exercício do treino.
+        /// </summary>
+        [HttpDelete("{workoutId}/exercises/{workoutExerciseId}/substitutions/{substitutionId}")]
+        public async Task<ActionResult> DeleteWorkoutExerciseSubstitution(
+            int workoutId,
+            int workoutExerciseId,
+            int substitutionId)
+        {
+            try
+            {
+                var removed = await _workoutService.DeleteWorkoutExerciseSubstitutionAsync(workoutId, workoutExerciseId, substitutionId);
+                if (!removed)
+                    return NotFound(new { message = "Substituição não encontrada para este exercício/treino" });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
+            }
+        }
+
+        #endregion
+
     }
 }

@@ -56,6 +56,7 @@ namespace Core.Models.Diet
         public virtual Empresas Empresa { get; set; } = null!;
 
         public virtual ICollection<DietMeal> Meals { get; set; } = new List<DietMeal>();
+        public virtual ICollection<DietSupplement> Supplements { get; set; } = new List<DietSupplement>();
         public virtual ICollection<DietProgress> Progress { get; set; } = new List<DietProgress>();
     }
 }

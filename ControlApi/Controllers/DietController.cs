@@ -369,7 +369,9 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados do progresso</param>
         /// <returns>Progresso criado</returns>
         [HttpPost("{dietId}/progress")]
-        public async Task<ActionResult<DietProgressResponse>> CreateDietProgress(int dietId, [FromBody] CreateDietProgressRequest request)
+        public async Task<ActionResult<DietProgressResponse>> CreateDietProgress(
+            int dietId,
+            [FromBody] CreateDietProgressRequest request)
         {
             try
             {
@@ -377,12 +379,104 @@ namespace ControlApi.Controllers
                     return BadRequest(ModelState);
 
                 var progress = await _dietService.CreateDietProgressAsync(dietId, request);
-                return CreatedAtAction(nameof(GetDietProgress), new { dietId }, progress);
+                return CreatedAtAction(nameof(GetDietProgressByFilter), new { dietId }, progress);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
             }
         }
+
+        // SUPPLEMENTS ENDPOINTS
+
+        /// <summary>
+        /// Lista as suplementações de uma dieta.
+        /// </summary>
+        [HttpGet("{dietId}/supplements")]
+        public async Task<ActionResult<List<DietSupplementResponse>>> GetDietSupplements(int dietId)
+        {
+            try
+            {
+                var supplements = await _dietService.GetDietSupplementsAsync(dietId);
+                return Ok(supplements);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Cria uma nova suplementação para a dieta.
+        /// </summary>
+        [HttpPost("{dietId}/supplements")]
+        public async Task<ActionResult<DietSupplementResponse>> CreateDietSupplement(
+            int dietId,
+            [FromBody] CreateDietSupplementRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var supplement = await _dietService.CreateDietSupplementAsync(dietId, request);
+                return CreatedAtAction(nameof(GetDietSupplements), new { dietId }, supplement);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Atualiza uma suplementação da dieta.
+        /// </summary>
+        [HttpPut("{dietId}/supplements/{supplementId}")]
+        public async Task<ActionResult<DietSupplementResponse>> UpdateDietSupplement(
+            int dietId,
+            int supplementId,
+            [FromBody] UpdateDietSupplementRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _dietService.UpdateDietSupplementAsync(dietId, supplementId, request);
+                if (result == null)
+                    return NotFound(new { message = "Suplementação não encontrada para esta dieta" });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Remove uma suplementação da dieta.
+        /// </summary>
+        [HttpDelete("{dietId}/supplements/{supplementId}")]
+        public async Task<ActionResult> DeleteDietSupplement(int dietId, int supplementId)
+        {
+            try
+            {
+                var removed = await _dietService.DeleteDietSupplementAsync(dietId, supplementId);
+                if (!removed)
+                    return NotFound(new { message = "Suplementação não encontrada para esta dieta" });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });
+            }
+        }
+
     }
 }

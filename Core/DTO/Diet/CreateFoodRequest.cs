@@ -12,9 +12,7 @@ namespace Core.DTO.Diet
 
         [StringLength(500, ErrorMessage = "Descrição deve ter no máximo 500 caracteres")]
         public string? Description { get; set; }
-
-        [Required(ErrorMessage = "Categoria é obrigatória")]
-        public FoodCategory Category { get; set; }
+        public FoodCategory? Category { get; set; }
 
         [Required(ErrorMessage = "Calorias por 100g são obrigatórias")]
         [Range(0, 1000, ErrorMessage = "Calorias devem estar entre 0 e 1000")]

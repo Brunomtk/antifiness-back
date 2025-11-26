@@ -38,5 +38,6 @@ namespace Core.DTO.Diet
 
         public DietMicronutrientsDTO? Micronutrients { get; set; }
         public List<DietMealResponse> Meals { get; set; } = new List<DietMealResponse>();
+        public List<DietSupplementResponse> Supplements { get; set; } = new List<DietSupplementResponse>();
     }
 }

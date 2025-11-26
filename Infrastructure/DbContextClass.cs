@@ -38,10 +38,13 @@ namespace Infrastructure
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<WorkoutExercise> WorkoutExercises { get; set; }
+        public DbSet<WorkoutExerciseSubstitution> WorkoutExerciseSubstitutions { get; set; }
         public DbSet<WorkoutProgress> WorkoutProgress { get; set; }
         public DbSet<Core.Models.Diet.Diet> Diets { get; set; }
         public DbSet<Core.Models.Diet.DietMeal> DietMeals { get; set; }
         public DbSet<Core.Models.Diet.DietMealFood> DietMealFoods { get; set; }
+        public DbSet<Core.Models.Diet.DietMealFoodSubstitution> DietMealFoodSubstitutions { get; set; }
+        public DbSet<Core.Models.Diet.DietSupplement> DietSupplements { get; set; }
         public DbSet<Core.Models.Diet.Food> Foods { get; set; }
         public DbSet<Core.Models.Diet.DietProgress> DietProgress { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
@@ -84,6 +87,7 @@ namespace Infrastructure
             modelBuilder.Entity<Core.Models.Diet.Diet>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.DietMeal>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.DietMealFood>().HasKey(e => e.Id);
+            modelBuilder.Entity<Core.Models.Diet.DietSupplement>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.Food>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.DietProgress>().HasKey(e => e.Id);
             modelBuilder.Entity<Feedback>().HasKey(e => e.Id);

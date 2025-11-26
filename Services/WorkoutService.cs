@@ -456,7 +456,126 @@ namespace Services
 
         #endregion
 
-        #region Progress Methods
+        
+        #region Exercise substitutions
+
+        public async Task<List<WorkoutExerciseSubstitutionResponse>> GetWorkoutExerciseSubstitutionsAsync(
+            int workoutId,
+            int workoutExerciseId)
+        {
+            var repo = _workoutRepository as WorkoutRepository
+                ?? throw new InvalidOperationException("WorkoutRepository inválido.");
+
+            var workoutExercise = await repo.GetWorkoutExerciseWithSubstitutionsForUpdateAsync(workoutId, workoutExerciseId);
+            if (workoutExercise == null || workoutExercise.Substitutions == null)
+                return new List<WorkoutExerciseSubstitutionResponse>();
+
+            return workoutExercise.Substitutions
+                .OrderBy(s => s.Exercise.Name)
+                .Select(MapToWorkoutExerciseSubstitutionResponse)
+                .ToList();
+        }
+
+        public async Task<WorkoutExerciseSubstitutionResponse> CreateWorkoutExerciseSubstitutionAsync(
+            int workoutId,
+            int workoutExerciseId,
+            CreateWorkoutExerciseSubstitutionRequest request)
+        {
+            var repo = _workoutRepository as WorkoutRepository
+                ?? throw new InvalidOperationException("WorkoutRepository inválido.");
+
+            var workoutExercise = await repo.GetWorkoutExerciseWithSubstitutionsForUpdateAsync(workoutId, workoutExerciseId);
+            if (workoutExercise == null)
+                throw new InvalidOperationException("Exercício do treino não encontrado.");
+
+            var exercise = await _exerciseRepository.GetById(request.ExerciseId);
+            if (exercise == null)
+                throw new InvalidOperationException("Exercício de substituição não encontrado.");
+
+            workoutExercise.Substitutions ??= new List<WorkoutExerciseSubstitution>();
+
+            var substitution = new WorkoutExerciseSubstitution
+            {
+                WorkoutExerciseId = workoutExercise.Id,
+                ExerciseId = exercise.Id,
+                Notes = request.Notes,
+                CreatedDate = DateTime.UtcNow,
+                UpdatedDate = DateTime.UtcNow
+            };
+
+            workoutExercise.Substitutions.Add(substitution);
+
+            _workoutExerciseRepository.Update(workoutExercise);
+            await _unitOfWork.SaveAsync();
+
+            return MapToWorkoutExerciseSubstitutionResponse(substitution);
+        }
+
+        public async Task<WorkoutExerciseSubstitutionResponse?> UpdateWorkoutExerciseSubstitutionAsync(
+            int workoutId,
+            int workoutExerciseId,
+            int substitutionId,
+            UpdateWorkoutExerciseSubstitutionRequest request)
+        {
+            var repo = _workoutRepository as WorkoutRepository
+                ?? throw new InvalidOperationException("WorkoutRepository inválido.");
+
+            var workoutExercise = await repo.GetWorkoutExerciseWithSubstitutionsForUpdateAsync(workoutId, workoutExerciseId);
+            if (workoutExercise == null || workoutExercise.Substitutions == null)
+                return null;
+
+            var substitution = workoutExercise.Substitutions.FirstOrDefault(s => s.Id == substitutionId);
+            if (substitution == null)
+                return null;
+
+            if (request.ExerciseId.HasValue)
+            {
+                var exercise = await _exerciseRepository.GetById(request.ExerciseId.Value);
+                if (exercise == null)
+                    throw new InvalidOperationException("Exercício de substituição não encontrado.");
+                substitution.ExerciseId = exercise.Id;
+            }
+
+            if (request.Notes != null)
+                substitution.Notes = request.Notes;
+
+            substitution.UpdatedDate = DateTime.UtcNow;
+
+            _workoutExerciseRepository.Update(workoutExercise);
+            await _unitOfWork.SaveAsync();
+
+            return MapToWorkoutExerciseSubstitutionResponse(substitution);
+        }
+
+        public async Task<bool> DeleteWorkoutExerciseSubstitutionAsync(
+            int workoutId,
+            int workoutExerciseId,
+            int substitutionId)
+        {
+            var repo = _workoutRepository as WorkoutRepository
+                ?? throw new InvalidOperationException("WorkoutRepository inválido.");
+
+            var workoutExercise = await repo.GetWorkoutExerciseWithSubstitutionsForUpdateAsync(workoutId, workoutExerciseId);
+            if (workoutExercise == null || workoutExercise.Substitutions == null)
+                return false;
+
+            var substitution = workoutExercise.Substitutions.FirstOrDefault(s => s.Id == substitutionId);
+            if (substitution == null)
+                return false;
+
+            workoutExercise.Substitutions.Remove(substitution);
+
+            _workoutExerciseRepository.Update(workoutExercise);
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+
+        #endregion
+
+
+
+#region Progress Methods
 
         public async Task<List<WorkoutProgressResponse>> GetWorkoutProgressAsync(int workoutId)
         {
@@ -632,14 +751,33 @@ namespace Services
                     RestTime = we.RestTime,
                     Notes = we.Notes,
                     IsCompleted = we.IsCompleted,
-                    CompletedSets = we.CompletedSets
+                    CompletedSets = we.CompletedSets,
+                    Substitutions = (we.Substitutions ?? new List<WorkoutExerciseSubstitution>())
+                        .Select(MapToWorkoutExerciseSubstitutionResponse)
+                        .ToList()
                 }).OrderBy(e => e.Order).ToList() ?? new List<WorkoutExerciseResponse>(),
+
                 CreatedAt = workout.CreatedDate,
                 UpdatedAt = workout.UpdatedDate
             };
         }
 
-        private WorkoutProgressResponse MapToWorkoutProgressResponse(WorkoutProgress progress)
+        
+        private WorkoutExerciseSubstitutionResponse MapToWorkoutExerciseSubstitutionResponse(WorkoutExerciseSubstitution substitution)
+        {
+            return new WorkoutExerciseSubstitutionResponse
+            {
+                Id = substitution.Id,
+                WorkoutExerciseId = substitution.WorkoutExerciseId,
+                ExerciseId = substitution.ExerciseId,
+                ExerciseName = substitution.Exercise?.Name ?? string.Empty,
+                Notes = substitution.Notes,
+                CreatedAt = substitution.CreatedDate,
+                UpdatedAt = substitution.UpdatedDate
+            };
+        }
+
+private WorkoutProgressResponse MapToWorkoutProgressResponse(WorkoutProgress progress)
         {
             return new WorkoutProgressResponse
             {

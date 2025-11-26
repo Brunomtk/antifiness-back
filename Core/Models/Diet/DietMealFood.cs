@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace Core.Models.Diet
 {
@@ -28,5 +29,7 @@ namespace Core.Models.Diet
 
         [ForeignKey("FoodId")]
         public virtual Food Food { get; set; } = null!;
+
+        public virtual ICollection<DietMealFoodSubstitution> Substitutions { get; set; } = new List<DietMealFoodSubstitution>();
     }
 }

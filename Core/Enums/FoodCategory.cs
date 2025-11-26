@@ -17,6 +17,10 @@ namespace Core.Enums
         Fats,
         Beverages,
         Supplements,
-        Others
+        Others,
+
+        PreWorkout,
+        PostWorkout,
+        NoRestriction
     }
 }

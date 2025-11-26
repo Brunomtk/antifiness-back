@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Core.Enums;
 
 namespace Core.DTO.Workout
@@ -35,5 +36,6 @@ namespace Core.DTO.Workout
         public string? Notes { get; set; }
         public bool IsCompleted { get; set; }
         public int? CompletedSets { get; set; }
+        public List<WorkoutExerciseSubstitutionResponse> Substitutions { get; set; } = new();
     }
 }
