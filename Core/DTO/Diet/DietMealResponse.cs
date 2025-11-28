@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System;
 using Core.Enums;
 
 namespace Core.DTO.Diet
@@ -8,8 +10,21 @@ namespace Core.DTO.Diet
         public int DietId { get; set; }
         public string Name { get; set; } = string.Empty;
         public MealType? Type { get; set; }
-        public string TypeDescription { get; set; } = string.Empty;
+
+        private string? _typeDescription;
+        public string TypeDescription
+        {
+            get => string.IsNullOrWhiteSpace(_typeDescription) ? "Sem tipo" : _typeDescription;
+            set => _typeDescription = value;
+        }
+
         public TimeSpan? ScheduledTime { get; set; }
+
+        public string ScheduledTimeDescription =>
+            ScheduledTime.HasValue
+                ? ScheduledTime.Value.ToString(@"hh\:mm")
+                : "Sem horário";
+
         public string? Instructions { get; set; }
         public double? TotalCalories { get; set; }
         public double? TotalProtein { get; set; }

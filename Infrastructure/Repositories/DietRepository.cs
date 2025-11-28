@@ -83,8 +83,12 @@ namespace Infrastructure.Repositories
         {
             return await _context.Set<Diet>()
                 .Include(d => d.Meals)
-                .ThenInclude(m => m.Foods)
-                .ThenInclude(f => f.Food)
+                    .ThenInclude(m => m.Foods)
+                        .ThenInclude(f => f.Food)
+                .Include(d => d.Meals)
+                    .ThenInclude(m => m.Foods)
+                        .ThenInclude(f => f.Substitutions)
+                            .ThenInclude(s => s.Food)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == id);
         }

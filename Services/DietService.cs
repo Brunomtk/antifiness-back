@@ -792,7 +792,19 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
                 Calories = mealFood.Calories,
                 Protein = mealFood.Protein,
                 Carbs = mealFood.Carbs,
-                Fat = mealFood.Fat
+                Fat = mealFood.Fat,
+                Substitutions = (mealFood.Substitutions ?? new List<DietMealFoodSubstitution>())
+                    .Select(s => new DietMealFoodSubstitutionResponse
+                    {
+                        Id = s.Id,
+                        MealFoodId = s.MealFoodId,
+                        FoodId = s.FoodId,
+                        FoodName = s.Food?.Name ?? string.Empty,
+                        Notes = s.Notes,
+                        CreatedAt = s.CreatedDate,
+                        UpdatedAt = s.UpdatedDate
+                    })
+                    .ToList()
             };
         }
 

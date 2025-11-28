@@ -11511,6 +11511,11 @@
           "scheduledTime": {
             "$ref": "#/components/schemas/TimeSpan"
           },
+          "scheduledTimeDescription": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
           "instructions": {
             "type": "string",
             "nullable": true
