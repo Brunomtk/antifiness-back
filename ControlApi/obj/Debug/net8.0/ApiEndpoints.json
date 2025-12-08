@@ -4443,6 +4443,22 @@
   },
   {
     "ContainingType": "ControlApi.Controllers.UsersController",
+    "Method": "RefreshToken",
+    "RelativePath": "api/Users/refresh-token",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Core.DTO.User.RefreshTokenRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.UsersController",
     "Method": "RegisterUser",
     "RelativePath": "api/Users/register",
     "HttpMethod": "POST",

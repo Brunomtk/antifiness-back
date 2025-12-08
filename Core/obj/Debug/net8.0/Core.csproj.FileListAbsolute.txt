@@ -1,14 +1,42 @@
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\bin\Debug\net8.0\Core.deps.json
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\bin\Debug\net8.0\Core.runtimeconfig.json
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\bin\Debug\net8.0\Core.dll
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\bin\Debug\net8.0\Core.pdb
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.csproj.AssemblyReference.cache
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.AssemblyInfoInputs.cache
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.AssemblyInfo.cs
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.csproj.CoreCompileInputs.cache
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.dll
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\refint\Core.dll
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.pdb
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\Core.genruntimeconfig.cache
-C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\antifiness-back\Core\obj\Debug\net8.0\ref\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.deps.json
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.runtimeconfig.json
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.pdb
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.csproj.AssemblyReference.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.AssemblyInfoInputs.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.AssemblyInfo.cs
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.csproj.CoreCompileInputs.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\refint\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.pdb
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.genruntimeconfig.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\ref\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.deps.json
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.runtimeconfig.json
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\bin\Debug\net8.0\Core.pdb
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.csproj.AssemblyReference.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.AssemblyInfoInputs.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.AssemblyInfo.cs
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.csproj.CoreCompileInputs.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\refint\Core.dll
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.pdb
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\Core.genruntimeconfig.cache
+C:\Users\bruno\OneDrive\Área de Trabalho\Projetos B7\Antifitness\DEV\antifiness-back_fixed_achievements_persist_v17_meals_optional\antifiness-back_achievements_persist_v4\Core\obj\Debug\net8.0\ref\Core.dll
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\bin\Debug\net8.0\Core.deps.json
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\bin\Debug\net8.0\Core.runtimeconfig.json
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\bin\Debug\net8.0\Core.dll
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\bin\Debug\net8.0\Core.pdb
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.csproj.AssemblyReference.cache
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.AssemblyInfoInputs.cache
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.AssemblyInfo.cs
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.csproj.CoreCompileInputs.cache
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.dll
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\refint\Core.dll
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.pdb
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\Core.genruntimeconfig.cache
+E:\Projetos B7\Antifitness\DEV\antifiness-back_with_rememberme_refresh_v2\antifiness-back\Core\obj\Debug\net8.0\ref\Core.dll

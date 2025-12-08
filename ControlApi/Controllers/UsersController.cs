@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Core.DTO.User;
@@ -42,7 +43,32 @@ namespace ControlApi.Controllers
             }
         }
 
+        
         /// <summary>
+        /// Renova o token de acesso usando um refresh token válido.
+        /// </summary>
+        /// <param name="request">Refresh token</param>
+        /// <returns>Novo par de tokens (access + refresh)</returns>
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            try
+            {
+                var token = await _userService.RefreshTokenAsync(request);
+                return Ok(token);
+            }
+            catch (SecurityTokenException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+/// <summary>
         /// Registra um novo usuário (público)
         /// </summary>
         /// <param name="request">Dados do usuário</param>

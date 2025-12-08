@@ -1,12 +1,44 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\",
-  "Documents": [],
+  "WorkspaceRootPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_fixed_achievements_persist_v17_meals_optional\\antifiness-back_achievements_persist_v4\\Services\\ClientService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_achievements_persist_v4\\Infrastructure\\Migrations\\20251110131553_add_client_achievements.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ClientService.cs",
+              "DocumentMoniker": "C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_fixed_achievements_persist_v17_meals_optional\\antifiness-back_achievements_persist_v4\\Services\\ClientService.cs",
+              "ToolTip": "C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_fixed_achievements_persist_v17_meals_optional\\antifiness-back_achievements_persist_v4\\Services\\ClientService.cs",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T14:32:22.239Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "20251110131553_add_client_achievements.cs",
+              "DocumentMoniker": "C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_achievements_persist_v4\\Infrastructure\\Migrations\\20251110131553_add_client_achievements.cs",
+              "ToolTip": "C:\\Users\\bruno\\OneDrive\\\u00C1rea de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_achievements_persist_v4\\Infrastructure\\Migrations\\20251110131553_add_client_achievements.cs",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T13:15:53.228Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

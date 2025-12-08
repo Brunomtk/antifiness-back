@@ -14,6 +14,7 @@ namespace Services
     public interface IUserService
     {
         Task<TokenJWT> AuthenticateAsync(UserAuthenticateRequest request);
+        Task<TokenJWT> RefreshTokenAsync(RefreshTokenRequest request);
         Task<bool> CreateUserAsync(CreateUserRequest request);
         Task<IEnumerable<UserResponse>> GetAllUsersAsync(string? role = null, string? status = null, string? search = null);
         Task<UserResponse?> GetUserByIdAsync(int userId);
@@ -45,7 +46,16 @@ namespace Services
             if (user.Status != UserStatus.Active)
                 throw new UnauthorizedAccessException("Usuário inativo ou pendente.");
 
-            var tokenDto = await _jwtManager.AuthenticateAsync(user);
+            var tokenDto = await _jwtManager.AuthenticateAsync(user, request.RememberMe);
+            return tokenDto;
+        }
+
+        public async Task<TokenJWT> RefreshTokenAsync(RefreshTokenRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
+                throw new ArgumentException("Refresh token é obrigatório.", nameof(request));
+
+            var tokenDto = await _jwtManager.RefreshTokenAsync(request.RefreshToken);
             return tokenDto;
         }
 

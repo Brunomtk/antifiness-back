@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\ControlApi.csproj": {}
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\ControlApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\ControlApi.csproj": {
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\ControlApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\ControlApi.csproj",
+        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\ControlApi.csproj",
         "projectName": "ControlApi",
-        "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\ControlApi.csproj",
+        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\ControlApi.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\ControlApi\\obj\\",
+        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\ControlApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj"
+              "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj"
               },
-              "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\Services.csproj": {
-                "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\Services.csproj"
+              "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\Services.csproj": {
+                "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\Services.csproj"
               }
             }
           }
@@ -183,14 +183,14 @@
         }
       }
     },
-    "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj": {
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj",
+        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj",
         "projectName": "Core",
-        "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj",
+        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\obj\\",
+        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -332,14 +332,14 @@
         }
       }
     },
-    "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj",
+        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\obj\\",
+        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -360,8 +360,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj": {
-                "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj"
+              "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj": {
+                "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj"
               }
             }
           }
@@ -507,14 +507,14 @@
         }
       }
     },
-    "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\Services.csproj": {
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\Services.csproj",
+        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\Services.csproj",
         "projectName": "Services",
-        "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\Services.csproj",
+        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\Services.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Services\\obj\\",
+        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Services\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -535,11 +535,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj": {
-                "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Core\\Core.csproj"
+              "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj": {
+                "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Core\\Core.csproj"
               },
-              "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\bruno\\OneDrive\\Área de Trabalho\\Projetos B7\\Antifitness\\DEV\\antifiness-back_workout_substitutions_v34_diet_substitutions_fix\\antifiness-back\\Infrastructure\\Infrastructure.csproj"
+              "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_with_rememberme_refresh_v2\\antifiness-back\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
