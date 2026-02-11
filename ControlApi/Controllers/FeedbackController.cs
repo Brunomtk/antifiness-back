@@ -1,4 +1,6 @@
+using System.Linq;
 using Core.DTO.Feedback;
+using Core.Enums.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -32,9 +34,9 @@ namespace ControlApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FeedbackResponse>> GetFeedbackById(int id)
+        public async Task<ActionResult<FeedbackResponse>> GetFeedbackById(int id, [FromQuery] int? empresaId = null)
         {
-            var feedback = await _feedbackService.GetFeedbackByIdAsync(id);
+            var feedback = await _feedbackService.GetFeedbackByIdAsync(id, empresaId);
             if (feedback == null)
                 return NotFound(new { message = "Feedback não encontrado" });
 
@@ -45,9 +47,10 @@ namespace ControlApi.Controllers
         public async Task<ActionResult<FeedbacksPagedDTO>> GetPagedFeedbacks(
             [FromQuery] FeedbackFiltersDTO filters,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? empresaId = null)
         {
-            var result = await _feedbackService.GetPagedFeedbacksAsync(filters, pageNumber, pageSize);
+            var result = await _feedbackService.GetPagedFeedbacksAsync(filters, pageNumber, pageSize, empresaId);
             return Ok(result);
         }
 
@@ -87,10 +90,73 @@ namespace ControlApi.Controllers
         }
 
         [HttpGet("client/{clientId}")]
-        public async Task<ActionResult<List<FeedbackResponse>>> GetFeedbacksByClient(int clientId)
+        public async Task<ActionResult<List<FeedbackResponse>>> GetFeedbacksByClient(int clientId, [FromQuery] int? empresaId = null)
         {
-            var feedbacks = await _feedbackService.GetFeedbacksByClientAsync(clientId);
+            var feedbacks = await _feedbackService.GetFeedbacksByClientAsync(clientId, empresaId);
             return Ok(feedbacks);
+        }
+
+
+        // ---------------- FEEDBACK OBRIGATÓRIO (modal) ----------------
+
+        private bool IsAdmin()
+        {
+            var userType = User?.Claims?.FirstOrDefault(c => c.Type == "userType")?.Value;
+            return int.TryParse(userType, out var t) && t == (int)UserType.Admin;
+        }
+
+        /// <summary>
+        /// Retorna se o cliente tem feedback obrigatório pendente (ex: a cada 30 dias) + perguntas para o modal.
+        /// </summary>
+        [HttpGet("mandatory/pending")]
+        public async Task<ActionResult<MandatoryFeedbackPendingResponse>> GetMandatoryPending([FromQuery] int clientId)
+        {
+            var result = await _feedbackService.GetMandatoryPendingAsync(clientId);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// (Admin) Consulta configuração global do feedback obrigatório.
+        /// </summary>
+        [HttpGet("mandatory/config")]
+        public async Task<ActionResult<MandatoryFeedbackConfigDTO>> GetMandatoryConfig()
+        {
+            if (!IsAdmin()) return Forbid();
+            var config = await _feedbackService.GetMandatoryConfigAsync();
+            return Ok(config);
+        }
+
+        /// <summary>
+        /// (Admin) Habilita/desabilita feedback obrigatório para TODOS os clientes.
+        /// Se Enabled=true e ForceAllNow=true, força uma nova rodada para todo mundo.
+        /// </summary>
+        [HttpPost("mandatory/config")]
+        public async Task<ActionResult<MandatoryFeedbackConfigDTO>> SetMandatoryConfig([FromBody] SetMandatoryFeedbackConfigRequest request)
+        {
+            if (!IsAdmin()) return Forbid();
+            var config = await _feedbackService.SetMandatoryConfigAsync(request);
+            return Ok(config);
+        }
+
+        /// <summary>
+        /// Envia o feedback obrigatório e fecha a pendência.
+        /// </summary>
+        [HttpPost("mandatory/submit")]
+        public async Task<ActionResult<FeedbackResponse>> SubmitMandatory([FromBody] SubmitMandatoryFeedbackRequest request)
+        {
+            try
+            {
+                var feedback = await _feedbackService.SubmitMandatoryFeedbackAsync(request);
+                return Ok(feedback);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("trainer/{trainerId}")]

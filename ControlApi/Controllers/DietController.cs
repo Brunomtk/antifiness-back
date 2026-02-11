@@ -1,6 +1,7 @@
 using Core.DTO.Diet;
 using Core.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Services;
 using Infrastructure.Repositories;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DietController : ControllerBase
     {
         private readonly IDietService _dietService;
@@ -83,11 +85,11 @@ namespace ControlApi.Controllers
         /// <param name="id">ID da dieta</param>
         /// <returns>Dados completos da dieta</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<DietResponse>> GetDietById(int id)
+        public async Task<ActionResult<DietResponse>> GetDietById(int id, [FromQuery] int? empresaId = null)
         {
             try
             {
-                var diet = await _dietService.GetDietByIdAsync(id);
+                var diet = await _dietService.GetDietByIdAsync(id, empresaId);
                 if (diet == null)
                     return NotFound(new { message = "Dieta não encontrada" });
 

@@ -13,6 +13,7 @@ using Core.Models.Course;
 using Core.Models.Notification;
 using Core.Models.Message;
 using Core.Models.Nutrition;
+using Core.Models.AppSettings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -65,6 +66,7 @@ namespace Infrastructure
         public DbSet<MessageAttachment> MessageAttachments { get; set; }
         public DbSet<MessageReaction> MessageReactions { get; set; }
         public DbSet<MessageTemplate> MessageTemplates { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -106,6 +108,16 @@ namespace Infrastructure
             modelBuilder.Entity<MessageAttachment>().HasKey(e => e.Id);
             modelBuilder.Entity<MessageReaction>().HasKey(e => e.Id);
             modelBuilder.Entity<MessageTemplate>().HasKey(e => e.Id);
+            modelBuilder.Entity<AppSetting>().HasKey(e => e.Id);
+
+            modelBuilder.Entity<AppSetting>()
+                .HasIndex(e => e.Key)
+                .IsUnique();
+            modelBuilder.Entity<AppSetting>().HasKey(e => e.Id);
+
+            modelBuilder.Entity<AppSetting>()
+                .HasIndex(e => e.Key)
+                .IsUnique();
 
             // Plan owned types
             modelBuilder.Entity<PlanMeal>()

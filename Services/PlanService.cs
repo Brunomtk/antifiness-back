@@ -13,8 +13,8 @@ namespace Services
     public interface IPlanService
     {
         Task<PlanDTO?> CreatePlanAsync(CreatePlanRequest request);
-        Task<PlanDTO?> GetPlanByIdAsync(int id);
-        Task<PagedResult<PlanDTO>> GetPlansPagedAsync(int page, int pageSize);
+        Task<PlanDTO?> GetPlanByIdAsync(int id, int? empresaId = null);
+        Task<PagedResult<PlanDTO>> GetPlansPagedAsync(int page, int pageSize, int? empresaId = null);
         Task<bool> UpdatePlanAsync(int id, UpdatePlanRequest request);
         Task<bool> DeletePlanAsync(int id);
     }
@@ -56,10 +56,17 @@ namespace Services
             return await GetPlanByIdAsync(entity.Id);
         }
 
-        public async Task<PlanDTO?> GetPlanByIdAsync(int id)
+        public async Task<PlanDTO?> GetPlanByIdAsync(int id, int? empresaId = null)
         {
             var p = await _planRepo.GetByIdAsync(id);
             if (p == null) return null;
+
+            if (empresaId.HasValue)
+            {
+                var client = await _unitOfWork.Clients.GetByIdAsync(p.ClientId);
+                if (client == null || (client.EmpresaId ?? 0) != empresaId.Value)
+                    return null;
+            }
 
             return new PlanDTO
             {
@@ -142,17 +149,60 @@ namespace Services
             };
         }
 
-        public async Task<PagedResult<PlanDTO>> GetPlansPagedAsync(int page, int pageSize)
+        public async Task<PagedResult<PlanDTO>> GetPlansPagedAsync(int page, int pageSize, int? empresaId = null)
         {
-            var paged = await _planRepo.GetAllPagedAsync(page, pageSize);
-
-            return new PagedResult<PlanDTO>
+            if (!empresaId.HasValue)
             {
-                CurrentPage = paged.CurrentPage,
-                PageSize = paged.PageSize,
-                RowCount = paged.RowCount,
-                PageCount = paged.PageCount,
-                Results = paged.Results.Select(p => new PlanDTO
+                var paged = await _planRepo.GetAllPagedAsync(page, pageSize);
+
+                return new PagedResult<PlanDTO>
+                {
+                    CurrentPage = paged.CurrentPage,
+                    PageSize = paged.PageSize,
+                    RowCount = paged.RowCount,
+                    PageCount = paged.PageCount,
+                    Results = paged.Results.Select(p => new PlanDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Type = p.Type,
+                        Duration = p.Duration,
+                        TargetCalories = p.TargetCalories,
+                        TargetWeight = p.TargetWeight,
+                        Status = p.Status,
+                        ClientId = p.ClientId,
+                        NutritionistId = p.NutritionistId,
+                        StartDate = p.StartDate,
+                        EndDate = p.EndDate,
+                        Notes = p.Notes,
+                        IsActive = p.IsActive,
+                        CreatedAt = p.CreatedDate,
+                        UpdatedAt = p.UpdatedDate
+                    }).ToList()
+                };
+            }
+
+            // Plan não possui EmpresaId no schema atual. Então filtramos por EmpresaId do Client.
+            var clients = (await _unitOfWork.Clients.GetAll()).ToList();
+            var allowedClientIds = clients
+                .Where(c => (c.EmpresaId ?? 0) == empresaId.Value)
+                .Select(c => c.Id)
+                .ToHashSet();
+
+            var allPlans = (await _planRepo.GetAll()).ToList();
+            var filtered = allPlans.Where(p => allowedClientIds.Contains(p.ClientId)).ToList();
+
+            var rowCount = filtered.Count;
+            var pageCount = (int)Math.Ceiling((double)rowCount / pageSize);
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 20;
+
+            var pageItems = filtered
+                .OrderByDescending(p => p.CreatedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PlanDTO
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -170,7 +220,16 @@ namespace Services
                     IsActive = p.IsActive,
                     CreatedAt = p.CreatedDate,
                     UpdatedAt = p.UpdatedDate
-                }).ToList()
+                })
+                .ToList();
+
+            return new PagedResult<PlanDTO>
+            {
+                CurrentPage = page,
+                PageSize = pageSize,
+                RowCount = rowCount,
+                PageCount = pageCount,
+                Results = pageItems
             };
         }
 

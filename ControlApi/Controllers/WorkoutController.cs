@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Services;
 using Core.DTO.Workout;
 
@@ -6,6 +7,7 @@ namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class WorkoutController : ControllerBase
     {
         private readonly IWorkoutService _workoutService;
@@ -36,11 +38,11 @@ namespace ControlApi.Controllers
         /// Busca um treino por ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<WorkoutResponse>> GetWorkout(int id)
+        public async Task<ActionResult<WorkoutResponse>> GetWorkout(int id, [FromQuery] int? empresaId = null)
         {
             try
             {
-                var workout = await _workoutService.GetWorkoutByIdAsync(id);
+                var workout = await _workoutService.GetWorkoutByIdAsync(id, empresaId);
                 if (workout == null)
                     return NotFound(new { message = "Treino não encontrado" });
 

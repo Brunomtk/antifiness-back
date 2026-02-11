@@ -15,7 +15,7 @@ namespace Services
     public interface IDietService
     {
         Task<DietsPagedDTO> GetAllDietsAsync(int pageNumber, int pageSize, DietFiltersDTO? filters = null);
-        Task<DietResponse?> GetDietByIdAsync(int id);
+        Task<DietResponse?> GetDietByIdAsync(int id, int? empresaId = null);
         Task<DietResponse> CreateDietAsync(CreateDietRequest request);
         Task<DietResponse?> UpdateDietAsync(int id, UpdateDietRequest request);
         Task<bool> DeleteDietAsync(int id);
@@ -115,10 +115,11 @@ namespace Services
             };
         }
 
-        public async Task<DietResponse?> GetDietByIdAsync(int id)
+        public async Task<DietResponse?> GetDietByIdAsync(int id, int? empresaId = null)
         {
             var diet = await _dietRepository.GetByIdDetailedAsync(id);
             if (diet == null) return null;
+            if (empresaId.HasValue && diet.EmpresaId != empresaId.Value) return null;
             var resp = MapToDietResponse(diet);
             try {
                 var calc = await _nutritionService.CalculateMicrosForDietAsync(id);

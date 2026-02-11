@@ -1,6 +1,7 @@
 // File: ControlApi/Controllers/PlansController.cs
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Services;
 using Saller.Infrastructure.ServiceExtension; // para PagedResult<T>
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PlansController : ControllerBase
     {
         private readonly IPlanService _planService;
@@ -36,9 +38,9 @@ namespace ControlApi.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(PlanDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<PlanDTO>> GetById(int id)
+        public async Task<ActionResult<PlanDTO>> GetById(int id, [FromQuery] int? empresaId = null)
         {
-            var dto = await _planService.GetPlanByIdAsync(id);
+            var dto = await _planService.GetPlanByIdAsync(id, empresaId);
             if (dto == null)
                 return NotFound();
 
@@ -50,9 +52,10 @@ namespace ControlApi.Controllers
         [ProducesResponseType(typeof(PagedResult<PlanDTO>), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<PlanDTO>>> GetPaged(
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20)
+            [FromQuery] int pageSize = 20,
+            [FromQuery] int? empresaId = null)
         {
-            var paged = await _planService.GetPlansPagedAsync(page, pageSize);
+            var paged = await _planService.GetPlansPagedAsync(page, pageSize, empresaId);
             return Ok(paged);
         }
 

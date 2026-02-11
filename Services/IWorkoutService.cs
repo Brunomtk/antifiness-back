@@ -9,14 +9,14 @@ namespace Services
     {
         // Exercise methods
         Task<ExercisesPagedDTO> GetExercisesAsync(ExerciseFiltersDTO filters);
-        Task<ExerciseResponse?> GetExerciseByIdAsync(int id);
+        Task<ExerciseResponse?> GetExerciseByIdAsync(int id, int? empresaId = null);
         Task<ExerciseResponse> CreateExerciseAsync(CreateExerciseRequest request);
         Task<ExerciseResponse?> UpdateExerciseAsync(int id, UpdateExerciseRequest request);
         Task<bool> DeleteExerciseAsync(int id);
 
         // Workout methods
         Task<WorkoutsPagedDTO> GetWorkoutsAsync(WorkoutFiltersDTO filters);
-        Task<WorkoutResponse?> GetWorkoutByIdAsync(int id);
+        Task<WorkoutResponse?> GetWorkoutByIdAsync(int id, int? empresaId = null);
         Task<WorkoutResponse> CreateWorkoutAsync(CreateWorkoutRequest request);
         Task<WorkoutResponse?> UpdateWorkoutAsync(int id, UpdateWorkoutRequest request);
         Task<bool> DeleteWorkoutAsync(int id);

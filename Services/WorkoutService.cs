@@ -100,10 +100,12 @@ namespace Services
             };
         }
 
-        public async Task<ExerciseResponse?> GetExerciseByIdAsync(int id)
+        public async Task<ExerciseResponse?> GetExerciseByIdAsync(int id, int? empresaId = null)
         {
             var exercise = (await _exerciseRepository.GetAll()).FirstOrDefault(e => e.Id == id && e.IsActive);
-            return exercise != null ? MapToExerciseResponse(exercise) : null;
+            if (exercise == null) return null;
+            if (empresaId.HasValue && exercise.EmpresaId != empresaId.Value) return null;
+            return MapToExerciseResponse(exercise);
         }
 
         public async Task<ExerciseResponse> CreateExerciseAsync(CreateExerciseRequest request)
@@ -269,10 +271,12 @@ namespace Services
             };
         }
 
-        public async Task<WorkoutResponse?> GetWorkoutByIdAsync(int id)
+        public async Task<WorkoutResponse?> GetWorkoutByIdAsync(int id, int? empresaId = null)
         {
             var workout = await _workoutRepository.GetWorkoutWithExercisesForUpdateAsync(id);
-            return workout != null ? MapToWorkoutResponse(workout) : null;
+            if (workout == null) return null;
+            if (empresaId.HasValue && workout.EmpresaId != empresaId.Value) return null;
+            return MapToWorkoutResponse(workout);
         }
 
         public async Task<WorkoutResponse> CreateWorkoutAsync(CreateWorkoutRequest request)

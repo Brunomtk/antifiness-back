@@ -18,7 +18,7 @@ namespace Services
     public interface IClientService
     {
         Task<ClientsPagedDTO> GetClientsPagedAsync(ClientFiltersDTO filters);
-        Task<ClientResponse?> GetClientByIdAsync(int id);
+        Task<ClientResponse?> GetClientByIdAsync(int id, int? empresaId = null);
         Task<ClientResponse?> CreateClientAsync(CreateClientRequest req);
         Task<bool> UpdateClientAsync(int id, UpdateClientRequest req);
         Task<bool> DeleteClientAsync(int id);
@@ -111,10 +111,14 @@ public sealed class ClientService : IClientService
             return await GetClientByIdAsync(entity.Id);
         }
 
-        public async Task<ClientResponse?> GetClientByIdAsync(int id)
+        public async Task<ClientResponse?> GetClientByIdAsync(int id, int? empresaId = null)
         {
             var client = await _clients.GetByIdAsync(id);
             if (client == null) return null;
+
+            if (empresaId.HasValue && (client.EmpresaId ?? 0) != empresaId.Value)
+                return null;
+
             return MapToResponse(client);
         }
 
