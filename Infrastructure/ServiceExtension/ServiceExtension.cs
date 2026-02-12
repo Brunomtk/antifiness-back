@@ -53,9 +53,6 @@ namespace Infrastructure.ServiceExtension
             services.AddScoped<FeedbackRepository>();
             services.AddScoped<CourseRepository>();
             services.AddScoped<NotificationRepository>();
-            services.AddScoped<ConversationRepository>();
-            services.AddScoped<MessageRepository>();
-            services.AddScoped<MessageTemplateRepository>();
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

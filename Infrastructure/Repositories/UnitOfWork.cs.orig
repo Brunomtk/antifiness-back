@@ -8,6 +8,7 @@ using Core.Models.Workout;
 using Core.Models.Feedback;
 using Core.Models.Course;
 using Core.Models.Notification;
+using Core.Models.Message;
 using Core.Models.Nutrition;
 using Core.Models.AppSettings;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,12 @@ namespace Infrastructure.Repositories
         IGenericRepository<NotificationSettings> NotificationSettings { get; }
         IGenericRepository<NotificationTemplate> NotificationTemplates { get; }
         IGenericRepository<NotificationSubscription> NotificationSubscriptions { get; }
+        ConversationRepository Conversations { get; }
+        MessageRepository Messages { get; }
+        IGenericRepository<ConversationParticipant> ConversationParticipants { get; }
+        IGenericRepository<MessageAttachment> MessageAttachments { get; }
+        IGenericRepository<MessageReaction> MessageReactions { get; }
+        MessageTemplateRepository MessageTemplates { get; }
         IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
         IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
         IGenericRepository<ClientAchievement> ClientAchievements { get; }
@@ -64,6 +71,12 @@ namespace Infrastructure.Repositories
         public IGenericRepository<NotificationSettings> NotificationSettings { get; }
         public IGenericRepository<NotificationTemplate> NotificationTemplates { get; }
         public IGenericRepository<NotificationSubscription> NotificationSubscriptions { get; }
+        public ConversationRepository Conversations { get; }
+        public MessageRepository Messages { get; }
+        public IGenericRepository<ConversationParticipant> ConversationParticipants { get; }
+        public IGenericRepository<MessageAttachment> MessageAttachments { get; }
+        public IGenericRepository<MessageReaction> MessageReactions { get; }
+        public MessageTemplateRepository MessageTemplates { get; }
         public IGenericRepository<MicronutrientType> MicronutrientTypes { get; }
         public IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
         public IGenericRepository<ClientAchievement> ClientAchievements { get; }
@@ -79,7 +92,10 @@ namespace Infrastructure.Repositories
             WorkoutRepository workoutRepository,
             FeedbackRepository feedbackRepository,
             CourseRepository courseRepository,
-            NotificationRepository notificationRepository)
+            NotificationRepository notificationRepository,
+            ConversationRepository conversationRepository,
+            MessageRepository messageRepository,
+            MessageTemplateRepository messageTemplateRepository)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -91,6 +107,9 @@ namespace Infrastructure.Repositories
             Feedbacks = feedbackRepository;
             Courses = courseRepository;
             Notifications = notificationRepository;
+            Conversations = conversationRepository;
+            Messages = messageRepository;
+            MessageTemplates = messageTemplateRepository;
             
             MicronutrientTypes = new MicronutrientTypeRepository(_dbContext);
             FoodMicronutrients = new FoodMicronutrientRepository(_dbContext);
@@ -107,6 +126,9 @@ namespace Infrastructure.Repositories
             NotificationSettings = new NotificationSettingsRepository(_dbContext);
             NotificationTemplates = new NotificationTemplateRepository(_dbContext);
             NotificationSubscriptions = new NotificationSubscriptionRepository(_dbContext);
+            ConversationParticipants = new ConversationParticipantRepository(_dbContext);
+            MessageAttachments = new MessageAttachmentRepository(_dbContext);
+            MessageReactions = new MessageReactionRepository(_dbContext);
         }
 
         public int Save()
@@ -191,4 +213,26 @@ namespace Infrastructure.Repositories
         {
         }
     }
+
+    // Concrete implementations for message entities
+    public class ConversationParticipantRepository : GenericRepository<ConversationParticipant>
+    {
+        public ConversationParticipantRepository(DbContextClass context) : base(context)
+        {
+        }
+    }
+
+    public class MessageAttachmentRepository : GenericRepository<MessageAttachment>
+    {
+        public MessageAttachmentRepository(DbContextClass context) : base(context)
+        {
+        }
+    }
+
+    public class MessageReactionRepository : GenericRepository<MessageReaction>
+    {
+        public MessageReactionRepository(DbContextClass context) : base(context)
+        {
+        }
+}
 }

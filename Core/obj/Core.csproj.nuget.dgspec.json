@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_feedback_companyid_aligned\\Core\\Core.csproj": {}
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Core\\Core.csproj": {}
   },
   "projects": {
-    "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_feedback_companyid_aligned\\Core\\Core.csproj": {
+    "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_feedback_companyid_aligned\\Core\\Core.csproj",
+        "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Core\\Core.csproj",
         "projectName": "Core",
-        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_feedback_companyid_aligned\\Core\\Core.csproj",
+        "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Core\\Core.csproj",
         "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifiness-back_feedback_companyid_aligned\\Core\\obj\\",
+        "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

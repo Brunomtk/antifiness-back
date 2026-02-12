@@ -81,7 +81,6 @@ builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
 builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
