@@ -93,7 +93,24 @@ namespace Services
             // Filtro por role
             if (!string.IsNullOrWhiteSpace(role))
             {
-                if (Enum.TryParse<UserType>(role, true, out var userType))
+                var normalized = role.Trim();
+                // Aceita alias em PT-BR e variações comuns
+                if (string.Equals(normalized, "cliente", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(normalized, "client", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(u => u.Type == UserType.Client);
+                }
+                else if (string.Equals(normalized, "empresa", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(normalized, "company", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(u => u.Type == UserType.Company);
+                }
+                else if (string.Equals(normalized, "admin", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(normalized, "administrador", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(u => u.Type == UserType.Admin);
+                }
+                else if (Enum.TryParse<UserType>(normalized, true, out var userType))
                 {
                     query = query.Where(u => u.Type == userType);
                 }
@@ -201,6 +218,7 @@ namespace Services
                 TotalUsers = users.Count,
                 TotalAdmins = users.Count(u => u.Type == UserType.Admin),
                 TotalClients = users.Count(u => u.Type == UserType.Client),
+                TotalCompanies = users.Count(u => u.Type == UserType.Company),
                 ActiveUsers = users.Count(u => u.Status == UserStatus.Active),
                 InactiveUsers = users.Count(u => u.Status == UserStatus.Inactive),
                 PendingUsers = users.Count(u => u.Status == UserStatus.Pending),
@@ -221,7 +239,7 @@ namespace Services
                 Name = user.Name,
                 Username = user.Username,
                 Email = user.Email,
-                Role = user.Type.ToString().ToLower(),
+                Role = user.Role,
                 Status = user.Status.ToString().ToLower(),
                 Phone = user.Phone,
                 Avatar = user.Avatar,

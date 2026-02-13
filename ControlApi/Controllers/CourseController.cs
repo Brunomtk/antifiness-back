@@ -1,11 +1,16 @@
-using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
+using ControlApi.Helpers;
 using Core.DTO.Course;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services;
 
 namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
@@ -13,6 +18,13 @@ namespace ControlApi.Controllers
         public CourseController(ICourseService courseService)
         {
             _courseService = courseService;
+        }
+
+        private int? GetScopedEmpresaId()
+        {
+            return string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
+                ? User.GetEmpresaId()
+                : null;
         }
 
         [HttpGet]
@@ -30,6 +42,10 @@ namespace ControlApi.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                empresasId = scopedEmpresaId.Value;
+
             var filters = new CourseFiltersDTO
             {
                 Search = search,
@@ -59,6 +75,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<CourseResponse>> CreateCourse([FromBody] CreateCourseRequest request)
         {
             var course = await _courseService.CreateCourseAsync(request);
@@ -66,6 +83,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<CourseResponse>> UpdateCourse(int id, [FromBody] UpdateCourseRequest request)
         {
             var course = await _courseService.UpdateCourseAsync(id, request);
@@ -76,6 +94,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> DeleteCourse(int id)
         {
             var success = await _courseService.DeleteCourseAsync(id);
@@ -86,6 +105,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPost("{id}/publish")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> PublishCourse(int id)
         {
             var success = await _courseService.PublishCourseAsync(id);
@@ -113,6 +133,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPost("{courseId}/lessons")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<LessonResponse>> CreateLesson(int courseId, [FromBody] CreateLessonRequest request)
         {
             var lesson = await _courseService.CreateLessonAsync(courseId, request);
@@ -120,6 +141,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPut("{courseId}/lessons/{lessonId}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<LessonResponse>> UpdateLesson(int courseId, int lessonId, [FromBody] UpdateLessonRequest request)
         {
             var lesson = await _courseService.UpdateLessonAsync(courseId, lessonId, request);
@@ -130,6 +152,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpDelete("{courseId}/lessons/{lessonId}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> DeleteLesson(int courseId, int lessonId)
         {
             var success = await _courseService.DeleteLessonAsync(courseId, lessonId);
@@ -147,6 +170,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpPost("{courseId}/reviews")]
+        [Authorize(Roles = "CLIENTE")]
         public async Task<ActionResult<ReviewResponse>> CreateReview(int courseId, [FromBody] CreateReviewRequest request)
         {
             var review = await _courseService.CreateReviewAsync(courseId, request);
@@ -154,6 +178,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<CourseStatsDTO>> GetCourseStats()
         {
             var stats = await _courseService.GetCourseStatsAsync();
@@ -161,6 +186,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpGet("{courseId}/stats")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<CourseStatsDTO>> GetCourseStats(int courseId)
         {
             var stats = await _courseService.GetCourseStatsAsync(courseId);

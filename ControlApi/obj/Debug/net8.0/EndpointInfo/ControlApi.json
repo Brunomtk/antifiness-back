@@ -1387,6 +1387,130 @@
         }
       }
     },
+    "/api/companies/subscription": {
+      "get": {
+        "tags": [
+          "CompanySubscription"
+        ],
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CompanySubscription"
+        ],
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertCompanySubscriptionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertCompanySubscriptionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertCompanySubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanySubscriptionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/subscription/cancel-at-period-end": {
+      "patch": {
+        "tags": [
+          "CompanySubscription"
+        ],
+        "parameters": [
+          {
+            "name": "cancelAtPeriodEnd",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "empresaId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Course": {
       "get": {
         "tags": [
@@ -5753,298 +5877,6 @@
         }
       }
     },
-    "/api/Plans": {
-      "post": {
-        "tags": [
-          "Plans"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePlanRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePlanRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePlanRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Plans"
-        ],
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 20
-            }
-          },
-          {
-            "name": "empresaId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTOPagedResult"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTOPagedResult"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTOPagedResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Plans/{id}": {
-      "get": {
-        "tags": [
-          "Plans"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "empresaId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlanDTO"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Plans"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePlanRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePlanRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePlanRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Plans"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Progress": {
       "get": {
         "tags": [
@@ -6140,6 +5972,100 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProgressResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscription-plans": {
+      "get": {
+        "tags": [
+          "SubscriptionPlans"
+        ],
+        "parameters": [
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionPlanDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionPlanDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionPlanDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SubscriptionPlans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionPlanRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionPlanRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionPlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionPlanDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionPlanDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionPlanDTO"
                 }
               }
             }
@@ -7554,6 +7480,14 @@
         },
         "additionalProperties": false
       },
+      "BillingInterval": {
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "CalcMicrosInputDTO": {
         "type": "object",
         "properties": {
@@ -8033,6 +7967,66 @@
           },
           "hasNextPage": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanySubscriptionDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empresaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subscriptionPlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "planPriceCents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planCurrency": {
+            "type": "string",
+            "nullable": true
+          },
+          "planInterval": {
+            "$ref": "#/components/schemas/BillingInterval"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubscriptionStatus"
+          },
+          "currentPeriodStartUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodEndUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerSubscriptionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "canceledAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -9246,226 +9240,6 @@
         },
         "additionalProperties": false
       },
-      "CreatePlanFoodRequest": {
-        "required": [
-          "calories",
-          "category",
-          "name",
-          "quantity",
-          "unit"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "quantity": {
-            "type": "number",
-            "format": "double"
-          },
-          "unit": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "category": {
-            "$ref": "#/components/schemas/FoodCategory"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreatePlanGoalRequest": {
-        "required": [
-          "target",
-          "type",
-          "unit"
-        ],
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/components/schemas/GoalType"
-          },
-          "target": {
-            "type": "number",
-            "format": "double"
-          },
-          "unit": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreatePlanMealRequest": {
-        "required": [
-          "calories",
-          "foods",
-          "macros",
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/MealType"
-          },
-          "time": {
-            "$ref": "#/components/schemas/TimeSpan"
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "foods": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreatePlanFoodRequest"
-            }
-          },
-          "instructions": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreatePlanProgressRequest": {
-        "required": [
-          "calories",
-          "date",
-          "mealsCompleted",
-          "photos",
-          "totalMeals"
-        ],
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "weight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "mealsCompleted": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalMeals": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "photos": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreatePlanRequest": {
-        "required": [
-          "clientId",
-          "duration",
-          "name",
-          "nutritionistId",
-          "targetCalories",
-          "type"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/PlanType"
-          },
-          "duration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "targetCalories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "targetWeight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "clientId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "nutritionistId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "goals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreatePlanGoalRequest"
-            },
-            "nullable": true
-          },
-          "meals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreatePlanMealRequest"
-            },
-            "nullable": true
-          },
-          "progressEntries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreatePlanProgressRequest"
-            },
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "CreateReviewRequest": {
         "required": [
           "rating",
@@ -9487,6 +9261,43 @@
             "maxLength": 1000,
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSubscriptionPlanRequest": {
+        "required": [
+          "currency",
+          "name",
+          "priceCents"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceCents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "interval": {
+            "$ref": "#/components/schemas/BillingInterval"
+          },
+          "trialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -11151,18 +10962,6 @@
         },
         "additionalProperties": false
       },
-      "GoalType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
       "Item": {
         "type": "object",
         "properties": {
@@ -11237,39 +11036,6 @@
           "completedDate": {
             "type": "string",
             "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "MacroNutrientsDTO": {
-        "type": "object",
-        "properties": {
-          "carbs": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "protein": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fat": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fiber": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "sugar": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "sodium": {
-            "type": "integer",
-            "format": "int32",
             "nullable": true
           }
         },
@@ -11886,320 +11652,6 @@
         },
         "additionalProperties": false
       },
-      "PlanDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/PlanType"
-          },
-          "duration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "targetCalories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "targetWeight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/PlanStatus"
-          },
-          "clientId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "nutritionistId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "goals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanGoalDTO"
-            },
-            "nullable": true
-          },
-          "meals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanMealDTO"
-            },
-            "nullable": true
-          },
-          "progressEntries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanProgressDTO"
-            },
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanDTOPagedResult": {
-        "type": "object",
-        "properties": {
-          "currentPage": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "rowCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "firstRowOnPage": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "lastRowOnPage": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "results": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanDTO"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanFoodDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "number",
-            "format": "double"
-          },
-          "unit": {
-            "type": "string",
-            "nullable": true
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "category": {
-            "$ref": "#/components/schemas/FoodCategory"
-          },
-          "planMealId": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanGoalDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "planId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "type": {
-            "$ref": "#/components/schemas/GoalType"
-          },
-          "target": {
-            "type": "number",
-            "format": "double"
-          },
-          "current": {
-            "type": "number",
-            "format": "double"
-          },
-          "unit": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanMealDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "planId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/MealType"
-          },
-          "time": {
-            "$ref": "#/components/schemas/TimeSpan"
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "foods": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanFoodDTO"
-            },
-            "nullable": true
-          },
-          "instructions": {
-            "type": "string",
-            "nullable": true
-          },
-          "isCompleted": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanProgressDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "planId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "weight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "mealsCompleted": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalMeals": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "photos": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlanStatus": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "PlanType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
       "Priority": {
         "enum": [
           0,
@@ -12573,6 +12025,52 @@
           }
         },
         "additionalProperties": false
+      },
+      "SubscriptionPlanDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceCents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "interval": {
+            "$ref": "#/components/schemas/BillingInterval"
+          },
+          "trialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubscriptionStatus": {
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "TimeSpan": {
         "type": "object",
@@ -13368,248 +12866,6 @@
         },
         "additionalProperties": false
       },
-      "UpdatePlanFoodRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "unit": {
-            "type": "string",
-            "nullable": true
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "category": {
-            "$ref": "#/components/schemas/FoodCategory"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdatePlanGoalRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/GoalType"
-          },
-          "target": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "current": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "unit": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdatePlanMealRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/MealType"
-          },
-          "time": {
-            "$ref": "#/components/schemas/TimeSpan"
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "macros": {
-            "$ref": "#/components/schemas/MacroNutrientsDTO"
-          },
-          "foods": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpdatePlanFoodRequest"
-            },
-            "nullable": true
-          },
-          "instructions": {
-            "type": "string",
-            "nullable": true
-          },
-          "isCompleted": {
-            "type": "boolean",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdatePlanProgressRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "weight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "calories": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "mealsCompleted": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "totalMeals": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "photos": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdatePlanRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/PlanType"
-          },
-          "duration": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "targetCalories": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "targetWeight": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/PlanStatus"
-          },
-          "clientId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "nutritionistId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "goals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpdatePlanGoalRequest"
-            },
-            "nullable": true
-          },
-          "meals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpdatePlanMealRequest"
-            },
-            "nullable": true
-          },
-          "progressEntries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpdatePlanProgressRequest"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "UpdateProgressRequest": {
         "required": [
           "enrollmentId",
@@ -13821,6 +13077,30 @@
         },
         "additionalProperties": false
       },
+      "UpsertCompanySubscriptionRequest": {
+        "required": [
+          "subscriptionPlanId"
+        ],
+        "type": "object",
+        "properties": {
+          "subscriptionPlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerSubscriptionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "UserAuthenticateRequest": {
         "required": [
           "email",
@@ -13855,7 +13135,8 @@
       "UserType": {
         "enum": [
           1,
-          2
+          2,
+          3
         ],
         "type": "integer",
         "format": "int32"

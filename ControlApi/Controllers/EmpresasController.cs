@@ -1,7 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Services;
+using System;
+using System.Threading.Tasks;
+using ControlApi.Helpers;
 using Core.DTO.Empresa;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services;
 
 namespace ControlApi.Controllers
 {
@@ -17,12 +20,19 @@ namespace ControlApi.Controllers
             _empresasService = empresasService;
         }
 
+        private int? GetScopedEmpresaIdForCompany()
+        {
+            var role = User.GetRole();
+            if (string.Equals(role, "COMPANY", StringComparison.OrdinalIgnoreCase))
+                return User.GetEmpresaId();
+            return null;
+        }
+
         /// <summary>
         /// Criar uma nova empresa
         /// </summary>
-        /// <param name="request">Dados da empresa</param>
-        /// <returns>Empresa criada</returns>
         [HttpPost("create")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<EmpresaResponse>> CreateEmpresa([FromBody] CreateEmpresaRequest request)
         {
             if (!ModelState.IsValid)
@@ -35,18 +45,8 @@ namespace ControlApi.Controllers
             return CreatedAtAction(nameof(GetEmpresaById), new { id = result.Id }, result);
         }
 
-        /// <summary>
-        /// Listar empresas com filtros e paginação
-        /// </summary>
-        /// <param name="name">Filtrar por nome</param>
-        /// <param name="status">Filtrar por status (Active/Inactive)</param>
-        /// <param name="search">Busca geral (nome, email, CNPJ)</param>
-        /// <param name="page">Página (padrão: 1)</param>
-        /// <param name="pageSize">Itens por página (padrão: 10)</param>
-        /// <param name="sortBy">Campo para ordenação (padrão: Name)</param>
-        /// <param name="sortDirection">Direção da ordenação (asc/desc, padrão: asc)</param>
-        /// <returns>Lista paginada de empresas</returns>
         [HttpGet]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<Core.DTO.Empresa.EmpresasPagedDTO>> GetEmpresas(
             [FromQuery] string? name = null,
             [FromQuery] string? status = null,
@@ -81,6 +81,7 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Estatísticas das empresas</returns>
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<EmpresaStats>> GetEmpresaStats()
         {
             var stats = await _empresasService.GetEmpresaStatsAsync();
@@ -95,6 +96,10 @@ namespace ControlApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EmpresaResponse>> GetEmpresaById(int id)
         {
+            var scopedEmpresaId = GetScopedEmpresaIdForCompany();
+            if (scopedEmpresaId.HasValue && scopedEmpresaId.Value != id)
+                return Forbid();
+
             var empresa = await _empresasService.GetEmpresaByIdAsync(id);
             if (empresa == null)
                 return NotFound("Empresa não encontrada");
@@ -111,6 +116,10 @@ namespace ControlApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<EmpresaResponse>> UpdateEmpresa(int id, [FromBody] UpdateEmpresaRequest request)
         {
+            var scopedEmpresaId = GetScopedEmpresaIdForCompany();
+            if (scopedEmpresaId.HasValue && scopedEmpresaId.Value != id)
+                return Forbid();
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -127,6 +136,7 @@ namespace ControlApi.Controllers
         /// <param name="id">ID da empresa</param>
         /// <returns>Resultado da operação</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<bool>> DeleteEmpresa(int id)
         {
             var result = await _empresasService.DeleteEmpresaAsync(id);
@@ -142,6 +152,7 @@ namespace ControlApi.Controllers
         /// <param name="id">ID da empresa</param>
         /// <returns>Empresa com status atualizado</returns>
         [HttpPatch("{id}/toggle-status")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<EmpresaResponse>> ToggleEmpresaStatus(int id)
         {
             var result = await _empresasService.ToggleEmpresaStatusAsync(id);

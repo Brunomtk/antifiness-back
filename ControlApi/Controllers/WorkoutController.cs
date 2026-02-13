@@ -1,13 +1,16 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Services;
+using System;
+using System.Threading.Tasks;
+using ControlApi.Helpers;
 using Core.DTO.Workout;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services;
 
 namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
     public class WorkoutController : ControllerBase
     {
         private readonly IWorkoutService _workoutService;
@@ -17,14 +20,50 @@ namespace ControlApi.Controllers
             _workoutService = workoutService;
         }
 
+        private int? GetScopedEmpresaId()
+        {
+            return string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
+                ? User.GetEmpresaId()
+                : null;
+        }
+
+        private int? GetScopedClientId()
+        {
+            return string.Equals(User.GetRole(), "CLIENTE", StringComparison.OrdinalIgnoreCase)
+                ? User.GetClientId()
+                : null;
+        }
+
+        private async Task<bool> CanAccessWorkoutAsync(int workoutId)
+        {
+            var scopedEmpresaId = GetScopedEmpresaId();
+            var workout = await _workoutService.GetWorkoutByIdAsync(workoutId, scopedEmpresaId);
+            if (workout == null) return false;
+
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && workout.ClientId != scopedClientId.Value)
+                return false;
+
+            return true;
+        }
+
         /// <summary>
         /// Lista todos os treinos com filtros opcionais
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutsPagedDTO>> GetWorkouts([FromQuery] WorkoutFiltersDTO filters)
         {
             try
             {
+                var scopedEmpresaId = GetScopedEmpresaId();
+                if (scopedEmpresaId.HasValue)
+                    filters.EmpresaId = scopedEmpresaId.Value;
+
+                var scopedClientId = GetScopedClientId();
+                if (scopedClientId.HasValue)
+                    filters.ClientId = scopedClientId.Value;
+
                 var result = await _workoutService.GetWorkoutsAsync(filters);
                 return Ok(result);
             }
@@ -33,10 +72,6 @@ namespace ControlApi.Controllers
                 return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
             }
         }
-
-        /// <summary>
-        /// Busca um treino por ID
-        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<WorkoutResponse>> GetWorkout(int id, [FromQuery] int? empresaId = null)
         {
@@ -58,6 +93,7 @@ namespace ControlApi.Controllers
         /// Cria um novo treino
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutResponse>> CreateWorkout([FromBody] CreateWorkoutRequest request)
         {
             try
@@ -183,7 +219,10 @@ namespace ControlApi.Controllers
         [HttpGet("{workoutId}/progress")]
         public async Task<ActionResult<List<WorkoutProgressResponse>>> GetWorkoutProgress(int workoutId)
         {
-            try
+            
+            if (!await CanAccessWorkoutAsync(workoutId)) return Forbid();
+
+try
             {
                 var progress = await _workoutService.GetWorkoutProgressAsync(workoutId);
                 return Ok(progress);
@@ -200,7 +239,10 @@ namespace ControlApi.Controllers
         [HttpPost("{workoutId}/progress")]
         public async Task<ActionResult<WorkoutProgressResponse>> CreateWorkoutProgress(int workoutId, [FromBody] CreateWorkoutProgressRequest request)
         {
-            try
+            
+            if (!await CanAccessWorkoutAsync(workoutId)) return Forbid();
+
+try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
@@ -222,6 +264,7 @@ namespace ControlApi.Controllers
         /// Obtém estatísticas de treinos
         /// </summary>
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutStatsDTO>> GetWorkoutStats([FromQuery] int? empresaId = null, [FromQuery] int? clientId = null)
         {
             try

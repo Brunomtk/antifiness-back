@@ -6,8 +6,10 @@ using Core.Models.Diet;
 using Core.Models.Workout;
 using Core.Models.Feedback;
 using Core.Models.Course;
+using Core.Models.Billing;
 using Infrastructure.Authenticate;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Billing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +55,7 @@ namespace Infrastructure.ServiceExtension
             services.AddScoped<FeedbackRepository>();
             services.AddScoped<CourseRepository>();
             services.AddScoped<NotificationRepository>();
+            services.AddScoped<ICompanySubscriptionRepository, CompanySubscriptionRepository>();
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

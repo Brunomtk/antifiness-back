@@ -74,7 +74,6 @@ builder.Services.AddDIServices(builder.Configuration);
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresasService, EmpresasService>();
-builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IDietService, DietService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
@@ -82,6 +81,7 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
 // ---------------------------------------------------------

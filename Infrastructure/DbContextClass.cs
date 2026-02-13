@@ -14,6 +14,7 @@ using Core.Models.Notification;
 using Core.Models.Message;
 using Core.Models.Nutrition;
 using Core.Models.AppSettings;
+using Core.Models.Billing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -67,6 +68,8 @@ namespace Infrastructure
         public DbSet<MessageReaction> MessageReactions { get; set; }
         public DbSet<MessageTemplate> MessageTemplates { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
+        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+        public DbSet<CompanySubscription> CompanySubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +112,12 @@ namespace Infrastructure
             modelBuilder.Entity<MessageReaction>().HasKey(e => e.Id);
             modelBuilder.Entity<MessageTemplate>().HasKey(e => e.Id);
             modelBuilder.Entity<AppSetting>().HasKey(e => e.Id);
+            modelBuilder.Entity<SubscriptionPlan>().HasKey(e => e.Id);
+            modelBuilder.Entity<CompanySubscription>().HasKey(e => e.Id);
+
+            modelBuilder.Entity<CompanySubscription>()
+                .HasIndex(e => e.EmpresaId)
+                .IsUnique();
 
             modelBuilder.Entity<AppSetting>()
                 .HasIndex(e => e.Key)

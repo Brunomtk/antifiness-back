@@ -4,6 +4,7 @@ namespace Core.Enums.User
     public enum UserType
     {
         Admin = 1,
-        Client = 2
+        Client = 2,
+        Company = 3
     }
 }

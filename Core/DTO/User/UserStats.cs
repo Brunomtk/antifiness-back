@@ -4,6 +4,7 @@ namespace Core.DTO.User
     {
         public int TotalUsers { get; set; }
         public int TotalAdmins { get; set; }
+        public int TotalCompanies { get; set; }
         public int TotalClients { get; set; }
         public int ActiveUsers { get; set; }
         public int InactiveUsers { get; set; }

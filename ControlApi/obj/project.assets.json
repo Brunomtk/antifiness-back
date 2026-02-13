@@ -10439,11 +10439,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\ControlApi\\ControlApi.csproj",
+      "projectUniqueName": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\ControlApi\\ControlApi.csproj",
       "projectName": "ControlApi",
-      "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\ControlApi\\ControlApi.csproj",
+      "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\ControlApi\\ControlApi.csproj",
       "packagesPath": "C:\\Users\\bruno\\.nuget\\packages\\",
-      "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\ControlApi\\obj\\",
+      "outputPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\ControlApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -10464,11 +10464,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Infrastructure\\Infrastructure.csproj"
+            "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\Infrastructure\\Infrastructure.csproj"
             },
-            "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Services\\Services.csproj": {
-              "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_NO-messages\\Services\\Services.csproj"
+            "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\Services\\Services.csproj": {
+              "projectPath": "E:\\Projetos B7\\Antifitness\\DEV\\antifitness-back_subscription_company_recurring_NO-dietplan-endpoints\\Services\\Services.csproj"
             }
           }
         }

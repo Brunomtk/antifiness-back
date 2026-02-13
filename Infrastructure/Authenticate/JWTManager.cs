@@ -49,7 +49,9 @@ namespace Infrastructure.Authenticate
                 name: user.Name,
                 type: user.Type,
                 status: user.Status,
-                rememberMe: rememberMe
+                rememberMe: rememberMe,
+                empresaId: user.EmpresaId,
+                clientId: user.ClientId
             );
 
             var tokens = GenerateTokens(baseClaims, rememberMe);
@@ -125,7 +127,9 @@ namespace Infrastructure.Authenticate
                     name: name,
                     type: userType,
                     status: userStatus,
-                    rememberMe: rememberMe
+                    rememberMe: rememberMe,
+                    empresaId: TryParseNullableInt(principal.FindFirst("empresaId")?.Value),
+                    clientId: TryParseNullableInt(principal.FindFirst("clientId")?.Value)
                 );
 
                 // Gera novo par de tokens
@@ -141,7 +145,25 @@ namespace Infrastructure.Authenticate
                 throw new SecurityTokenException("Refresh token inválido ou expirado.");
             }
         }
+        private static int? TryParseNullableInt(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            return int.TryParse(value, out var i) ? i : (int?)null;
+        }
 
+        
+
+        
+
+        
+
+        
+
+        
+
+
+
+        
         /// <summary>
         /// Monta o conjunto base de claims do usuário (sem tokenType).
         /// </summary>
@@ -152,18 +174,38 @@ namespace Infrastructure.Authenticate
             string? name,
             UserType type,
             UserStatus status,
-            bool rememberMe)
+            bool rememberMe,
+            int? empresaId,
+            int? clientId)
         {
+            var role = RoleFromType(type);
             return new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub,        userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, username ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Email,      email ?? string.Empty),
                 new Claim(ClaimTypes.Name,                    name ?? string.Empty),
+                new Claim(ClaimTypes.Role,                    role),
+                new Claim("role",                             role),
                 new Claim("userId",                           userId.ToString()),
                 new Claim("userType",                         ((int)type).ToString()),
+                new Claim("userTypeName",                     type.ToString()),
                 new Claim("userStatus",                       ((int)status).ToString()),
+                new Claim("userStatusName",                   status.ToString()),
+                new Claim("empresaId",                       (empresaId ?? 0).ToString()),
+                new Claim("clientId",                        (clientId ?? 0).ToString()),
                 new Claim("rememberMe",                       rememberMe ? "true" : "false")
+            };
+        }
+
+        private static string RoleFromType(UserType type)
+        {
+            return type switch
+            {
+                UserType.Admin => "ADMIN",
+                UserType.Company => "COMPANY",
+                UserType.Client => "CLIENTE",
+                _ => "CLIENTE"
             };
         }
 

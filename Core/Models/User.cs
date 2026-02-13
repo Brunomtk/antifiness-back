@@ -45,7 +45,13 @@ namespace Core.Models
 
         // Helper properties for API responses
         [NotMapped]
-        public string Role => Type.ToString().ToLower();
+        public string Role => Type switch
+        {
+            UserType.Admin => "ADMIN",
+            UserType.Company => "COMPANY",
+            UserType.Client => "CLIENTE",
+            _ => "CLIENTE"
+        };
 
         [NotMapped]
         public string StatusString => Status.ToString().ToLower();

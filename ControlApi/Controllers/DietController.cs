@@ -1,16 +1,17 @@
+using System;
+using System.Threading.Tasks;
+using ControlApi.Helpers;
 using Core.DTO.Diet;
 using Core.Enums;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services;
-using Infrastructure.Repositories;
-using System.Linq;
 
 namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
     public class DietController : ControllerBase
     {
         private readonly IDietService _dietService;
@@ -20,24 +21,49 @@ namespace ControlApi.Controllers
             _dietService = dietService;
         }
 
+        private int? GetScopedEmpresaId()
+        {
+            return string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
+                ? User.GetEmpresaId()
+                : null;
+        }
+
+        private int? GetScopedClientId()
+        {
+            return string.Equals(User.GetRole(), "CLIENTE", StringComparison.OrdinalIgnoreCase)
+                ? User.GetClientId()
+                : null;
+        }
+
+        private async Task<bool> CanAccessDietAsync(int dietId)
+        {
+            var role = (User.GetRole() ?? string.Empty).Trim();
+            if (string.Equals(role, "ADMIN", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            var scopedClientId = GetScopedClientId();
+
+            // Tenta buscar já filtrando por empresa quando possível
+            var empresaIdForLookup = scopedEmpresaId ?? User.GetEmpresaId();
+            var diet = await _dietService.GetDietByIdAsync(dietId, empresaIdForLookup);
+            if (diet == null)
+                return false;
+
+            if (scopedEmpresaId.HasValue && diet.EmpresaId != scopedEmpresaId.Value)
+                return false;
+
+            if (scopedClientId.HasValue && diet.ClientId != scopedClientId.Value)
+                return false;
+
+            return true;
+        }
+
         /// <summary>
         /// Lista todas as dietas com filtros e paginação
         /// </summary>
-        /// <param name="pageNumber">Número da página (padrão: 1)</param>
-        /// <param name="pageSize">Tamanho da página (padrão: 10)</param>
-        /// <param name="search">Busca por nome da dieta, cliente ou empresa</param>
-        /// <param name="status">Filtro por status da dieta</param>
-        /// <param name="clientId">Filtro por ID do cliente</param>
-        /// <param name="empresaId">Filtro por ID da empresa</param>
-        /// <param name="startDateFrom">Data de início a partir de</param>
-        /// <param name="startDateTo">Data de início até</param>
-        /// <param name="endDateFrom">Data de fim a partir de</param>
-        /// <param name="endDateTo">Data de fim até</param>
-        /// <param name="hasEndDate">Filtro por dietas com/sem data de fim</param>
-        /// <param name="minCalories">Calorias mínimas</param>
-        /// <param name="maxCalories">Calorias máximas</param>
-        /// <returns>Lista paginada de dietas</returns>
         [HttpGet]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<DietsPagedDTO>> GetAllDiets(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -55,6 +81,10 @@ namespace ControlApi.Controllers
         {
             try
             {
+                var scopedEmpresaId = GetScopedEmpresaId();
+                if (scopedEmpresaId.HasValue)
+                    empresaId = scopedEmpresaId.Value;
+
                 var filters = new DietFiltersDTO
                 {
                     Search = search,
@@ -82,16 +112,22 @@ namespace ControlApi.Controllers
         /// <summary>
         /// Busca uma dieta específica por ID
         /// </summary>
-        /// <param name="id">ID da dieta</param>
-        /// <returns>Dados completos da dieta</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<DietResponse>> GetDietById(int id, [FromQuery] int? empresaId = null)
         {
             try
             {
+                var scopedEmpresaId = GetScopedEmpresaId();
+                if (scopedEmpresaId.HasValue)
+                    empresaId = scopedEmpresaId.Value;
+
                 var diet = await _dietService.GetDietByIdAsync(id, empresaId);
                 if (diet == null)
                     return NotFound(new { message = "Dieta não encontrada" });
+
+                var scopedClientId = GetScopedClientId();
+                if (scopedClientId.HasValue && diet.ClientId != scopedClientId.Value)
+                    return Forbid();
 
                 return Ok(diet);
             }
@@ -107,6 +143,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da nova dieta</param>
         /// <returns>Dieta criada</returns>
         [HttpPost]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<DietResponse>> CreateDiet([FromBody] CreateDietRequest request)
         {
             try
@@ -176,6 +213,7 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Estatísticas completas das dietas</returns>
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<DietStatsDTO>> GetDietStats()
         {
             try
@@ -200,7 +238,10 @@ namespace ControlApi.Controllers
         [HttpGet("{dietId}/meals")]
         public async Task<ActionResult<List<DietMealResponse>>> GetDietMeals(int dietId)
         {
-            try
+            
+            if (!await CanAccessDietAsync(dietId)) return Forbid();
+
+try
             {
                 var meals = await _dietService.GetDietMealsAsync(dietId);
                 return Ok(meals);
@@ -232,7 +273,10 @@ namespace ControlApi.Controllers
 [HttpPost("{dietId}/meals")]
         public async Task<ActionResult<DietMealResponse>> CreateDietMeal(int dietId, [FromBody] CreateDietMealRequest request)
         {
-            try
+            
+            if (!await CanAccessDietAsync(dietId)) return Forbid();
+
+try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
@@ -332,7 +376,10 @@ namespace ControlApi.Controllers
         [HttpGet("{dietId}/progress")]
         public async Task<ActionResult<List<DietProgressResponse>>> GetDietProgress(int dietId)
         {
-            try
+            
+            if (!await CanAccessDietAsync(dietId)) return Forbid();
+
+try
             {
                 var progress = await _dietService.GetDietProgressAsync(dietId);
                 return Ok(progress);
@@ -397,7 +444,10 @@ namespace ControlApi.Controllers
         [HttpGet("{dietId}/supplements")]
         public async Task<ActionResult<List<DietSupplementResponse>>> GetDietSupplements(int dietId)
         {
-            try
+            
+            if (!await CanAccessDietAsync(dietId)) return Forbid();
+
+try
             {
                 var supplements = await _dietService.GetDietSupplementsAsync(dietId);
                 return Ok(supplements);
@@ -466,7 +516,10 @@ namespace ControlApi.Controllers
         [HttpDelete("{dietId}/supplements/{supplementId}")]
         public async Task<ActionResult> DeleteDietSupplement(int dietId, int supplementId)
         {
-            try
+            
+            if (!await CanAccessDietAsync(dietId)) return Forbid();
+
+try
             {
                 var removed = await _dietService.DeleteDietSupplementAsync(dietId, supplementId);
                 if (!removed)

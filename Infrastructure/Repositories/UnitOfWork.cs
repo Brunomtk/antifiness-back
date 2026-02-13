@@ -10,6 +10,7 @@ using Core.Models.Course;
 using Core.Models.Notification;
 using Core.Models.Nutrition;
 using Core.Models.AppSettings;
+using Core.Models.Billing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -38,6 +39,8 @@ namespace Infrastructure.Repositories
         IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
         IGenericRepository<ClientAchievement> ClientAchievements { get; }
         IGenericRepository<AppSetting> AppSettings { get; }
+        IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
+        IGenericRepository<CompanySubscription> CompanySubscriptions { get; }
         int Save();
         Task<int> SaveAsync();
     }
@@ -68,6 +71,8 @@ namespace Infrastructure.Repositories
         public IGenericRepository<FoodMicronutrient> FoodMicronutrients { get; }
         public IGenericRepository<ClientAchievement> ClientAchievements { get; }
         public IGenericRepository<AppSetting> AppSettings { get; }
+        public IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
+        public IGenericRepository<CompanySubscription> CompanySubscriptions { get; }
 
         public UnitOfWork(
             DbContextClass dbContext,
@@ -96,6 +101,8 @@ namespace Infrastructure.Repositories
             FoodMicronutrients = new FoodMicronutrientRepository(_dbContext);
             ClientAchievements = new GenericRepositoryImpl<ClientAchievement>(_dbContext);
             AppSettings = new GenericRepositoryImpl<AppSetting>(_dbContext);
+            SubscriptionPlans = new GenericRepositoryImpl<SubscriptionPlan>(_dbContext);
+            CompanySubscriptions = new GenericRepositoryImpl<CompanySubscription>(_dbContext);
 
 // Create concrete implementations of generic repositories
             WorkoutExercises = new WorkoutExerciseRepository(_dbContext);

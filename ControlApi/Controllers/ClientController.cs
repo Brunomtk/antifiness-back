@@ -1,10 +1,12 @@
+using System;
+using System.Threading.Tasks;
+using ControlApi.Helpers;
 using Core.DTO.Client;
 using Core.DTO.Diet;
 using Core.DTO.Workout;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
-using System.Threading.Tasks;
 
 namespace ControlApi.Controllers
 {
@@ -13,7 +15,7 @@ namespace ControlApi.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
@@ -23,22 +25,25 @@ namespace ControlApi.Controllers
             _clientService = clientService;
         }
 
+        private int? GetScopedEmpresaId()
+        {
+            return string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
+                ? User.GetEmpresaId()
+                : null;
+        }
+
+        private int? GetScopedClientId()
+        {
+            return string.Equals(User.GetRole(), "CLIENTE", StringComparison.OrdinalIgnoreCase)
+                ? User.GetClientId()
+                : null;
+        }
+
         /// <summary>
         /// Lista clientes com filtros opcionais
         /// </summary>
-        /// <param name="status">Status do cliente (active, inactive, paused)</param>
-        /// <param name="kanbanStage">Estágio no kanban do CRM (lead, prospect, qualified, etc.)</param>
-        /// <param name="goalType">Tipo de objetivo</param>
-        /// <param name="activityLevel">Nível de atividade (sedentary, light, moderate, active, very_active)</param>
-        /// <param name="planId">ID do plano associado</param>
-        /// <param name="empresaId">ID da empresa</param>
-        /// <param name="search">Busca por nome ou email</param>
-        /// <param name="page">Página (padrão: 1)</param>
-        /// <param name="pageSize">Itens por página (padrão: 20)</param>
-        /// <param name="orderBy">Campo para ordenação (padrão: name)</param>
-        /// <param name="orderDirection">Direção da ordenação (asc/desc, padrão: asc)</param>
-        /// <returns>Lista paginada de clientes</returns>
         [HttpGet]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         [ProducesResponseType(typeof(ClientsPagedDTO), 200)]
         public async Task<ActionResult<ClientsPagedDTO>> GetClients(
             [FromQuery] string? status = null,
@@ -53,6 +58,10 @@ namespace ControlApi.Controllers
             [FromQuery] string? orderBy = "name",
             [FromQuery] string? orderDirection = "asc")
         {
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                empresaId = scopedEmpresaId.Value;
+
             var filters = new ClientFiltersDTO
             {
                 Status = status,
@@ -72,7 +81,6 @@ namespace ControlApi.Controllers
             return Ok(result);
         }
 
-        /// <summary>
         /// Busca cliente por ID
         /// </summary>
         /// <param name="id">ID do cliente</param>
@@ -82,7 +90,13 @@ namespace ControlApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<ClientResponse>> GetById(int id)
         {
-            var client = await _clientService.GetClientByIdAsync(id);
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+
+            var client = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
             if (client == null)
                 return NotFound(new { message = "Cliente não encontrado" });
 
@@ -95,6 +109,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados do cliente</param>
         /// <returns>Cliente criado</returns>
         [HttpPost]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         [ProducesResponseType(typeof(ClientResponse), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(409)]
@@ -102,6 +117,10 @@ namespace ControlApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                request.EmpresaId = scopedEmpresaId.Value;
 
             var client = await _clientService.CreateClientAsync(request);
             if (client == null)
@@ -123,6 +142,17 @@ namespace ControlApi.Controllers
         [ProducesResponseType(409)]
         public async Task<ActionResult<bool>> Update(int id, [FromBody] UpdateClientRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -143,6 +173,13 @@ namespace ControlApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<bool>> Delete(int id)
         {
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
             var result = await _clientService.DeleteClientAsync(id);
             if (!result)
                 return NotFound(new { message = "Cliente não encontrado" });
@@ -157,11 +194,24 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados do progresso de peso</param>
         /// <returns>Registro de progresso criado</returns>
         [HttpPost("{clientId:int}/progress/weight")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(ClientMeasurementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<ClientMeasurementDTO>> AddWeightProgress(int clientId, [FromBody] AddWeightProgressRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -179,11 +229,24 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados das medidas corporais</param>
         /// <returns>Registro de medidas criado</returns>
         [HttpPost("{clientId:int}/progress/measurements")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(ClientMeasurementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<ClientMeasurementDTO>> AddMeasurementsProgress(int clientId, [FromBody] AddMeasurementsProgressRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -201,11 +264,24 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da foto de progresso</param>
         /// <returns>Registro de foto criado</returns>
         [HttpPost("{clientId:int}/progress/photos")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<AchievementDTO>> AddPhotoProgress(int clientId, [FromBody] AddPhotoProgressRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -223,11 +299,24 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da conquista</param>
         /// <returns>Conquista criada</returns>
         [HttpPost("{clientId:int}/achievements")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<AchievementDTO>> AddAchievement(int clientId, [FromBody] AddAchievementRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -244,6 +333,7 @@ namespace ControlApi.Controllers
         /// <param name="achievementId">ID da conquista</param>
         /// <param name="request">Campos a atualizar</param>
         [HttpPut("{clientId:int}/achievements/{achievementId:int}")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -252,6 +342,18 @@ namespace ControlApi.Controllers
             int achievementId,
             [FromBody] UpdateAchievementRequest request)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -266,6 +368,7 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Estatísticas agregadas</returns>
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         [ProducesResponseType(typeof(ClientStatsDTO), 200)]
         public async Task<ActionResult<ClientStatsDTO>> GetStats()
         {
@@ -280,6 +383,18 @@ namespace ControlApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<DietSummaryDTO>> GetCurrentDiet([FromRoute] int id)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var diet = await _clientService.GetCurrentDietAsync(id);
             return Ok(diet);
         }
@@ -293,6 +408,18 @@ namespace ControlApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<WorkoutSummaryDTO>> GetCurrentWorkout([FromRoute] int id)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var workout = await _clientService.GetCurrentWorkoutAsync(id);
             return Ok(workout);
         }
@@ -306,6 +433,18 @@ namespace ControlApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<ClientBasicDTO>> GetBasic([FromRoute] int id)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var c = await _clientService.GetClientBasicByIdAsync(id);
             if (c == null) return NotFound();
             return Ok(c);
@@ -319,6 +458,18 @@ namespace ControlApi.Controllers
         [ProducesResponseType(typeof(IEnumerable<DietSummaryDTO>), 200)]
         public async Task<ActionResult<IEnumerable<DietSummaryDTO>>> GetDietHistory([FromRoute] int id)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var items = await _clientService.GetDietHistoryAsync(id);
             return Ok(items);
         }
@@ -331,6 +482,18 @@ namespace ControlApi.Controllers
         [ProducesResponseType(typeof(IEnumerable<WorkoutSummaryDTO>), 200)]
         public async Task<ActionResult<IEnumerable<WorkoutSummaryDTO>>> GetWorkoutHistory([FromRoute] int id)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != id)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(id, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var items = await _clientService.GetWorkoutHistoryAsync(id);
             return Ok(items);
         }
@@ -351,6 +514,18 @@ namespace ControlApi.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             if (page <= 0 || pageSize <= 0)
                 return BadRequest(new { message = "page e pageSize devem ser >= 1" });
 
@@ -364,10 +539,23 @@ namespace ControlApi.Controllers
         /// <param name="clientId">ID do cliente</param>
         /// <param name="achievementId">ID da conquista</param>
         [HttpDelete("{clientId:int}/achievements/{achievementId:int}")]
+        [Authorize(Roles = "COMPANY,CLIENTE")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteAchievement(int clientId, int achievementId)
         {
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue && scopedClientId.Value != clientId)
+                return Forbid();
+
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+            {
+                var existing = await _clientService.GetClientByIdAsync(clientId, scopedEmpresaId);
+                if (existing == null) return Forbid();
+            }
+
+
             var removed = await _clientService.DeleteAchievementAsync(clientId, achievementId);
             if (!removed)
                 return NotFound(new { message = "Cliente ou conquista não encontrada" });
