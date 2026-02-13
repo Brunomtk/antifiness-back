@@ -63,7 +63,8 @@ namespace ControlApi.Controllers
         /// Lista todas as dietas com filtros e paginação
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "ADMIN,COMPANY")]
+        // CLIENTE pode listar apenas as próprias dietas (clientId vem do token)
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<DietsPagedDTO>> GetAllDiets(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -84,6 +85,11 @@ namespace ControlApi.Controllers
                 var scopedEmpresaId = GetScopedEmpresaId();
                 if (scopedEmpresaId.HasValue)
                     empresaId = scopedEmpresaId.Value;
+
+                // Se for CLIENTE, força o filtro pelo ClientId do token
+                var scopedClientId = GetScopedClientId();
+                if (scopedClientId.HasValue)
+                    clientId = scopedClientId.Value;
 
                 var filters = new DietFiltersDTO
                 {
@@ -167,6 +173,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados para atualização</param>
         /// <returns>Dieta atualizada</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<DietResponse>> UpdateDiet(int id, [FromBody] UpdateDietRequest request)
         {
             try
@@ -192,6 +199,7 @@ namespace ControlApi.Controllers
         /// <param name="id">ID da dieta</param>
         /// <returns>Confirmação da remoção</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> DeleteDiet(int id)
         {
             try

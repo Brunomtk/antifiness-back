@@ -51,7 +51,6 @@ namespace ControlApi.Controllers
         /// Lista todos os treinos com filtros opcionais
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutsPagedDTO>> GetWorkouts([FromQuery] WorkoutFiltersDTO filters)
         {
             try
@@ -77,9 +76,18 @@ namespace ControlApi.Controllers
         {
             try
             {
+                // Escopo: COMPANY força empresaId pelo token; CLIENTE só pode ver os próprios treinos
+                var scopedEmpresaId = GetScopedEmpresaId();
+                if (scopedEmpresaId.HasValue)
+                    empresaId = scopedEmpresaId.Value;
+
                 var workout = await _workoutService.GetWorkoutByIdAsync(id, empresaId);
                 if (workout == null)
                     return NotFound(new { message = "Treino não encontrado" });
+
+                var scopedClientId = GetScopedClientId();
+                if (scopedClientId.HasValue && workout.ClientId != scopedClientId.Value)
+                    return Forbid();
 
                 return Ok(workout);
             }
@@ -114,6 +122,7 @@ namespace ControlApi.Controllers
         /// Atualiza um treino existente
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutResponse>> UpdateWorkout(int id, [FromBody] UpdateWorkoutRequest request)
         {
             try
@@ -137,6 +146,7 @@ namespace ControlApi.Controllers
         /// Remove um treino
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> DeleteWorkout(int id)
         {
             try
@@ -157,6 +167,7 @@ namespace ControlApi.Controllers
         /// Altera o status de um treino
         /// </summary>
         [HttpPost("{id}/status")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult> ChangeWorkoutStatus(int id, [FromBody] ChangeWorkoutStatusRequest request)
         {
             try
@@ -180,6 +191,7 @@ namespace ControlApi.Controllers
         /// Lista templates de treinos
         /// </summary>
         [HttpGet("templates")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutsPagedDTO>> GetTemplates([FromQuery] WorkoutFiltersDTO filters)
         {
             try
@@ -197,6 +209,7 @@ namespace ControlApi.Controllers
         /// Cria um treino a partir de um template
         /// </summary>
         [HttpPost("templates/{templateId}/instantiate")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutResponse>> InstantiateTemplate(int templateId, [FromBody] CreateWorkoutRequest? overrides = null)
         {
             try
@@ -264,11 +277,21 @@ try
         /// Obtém estatísticas de treinos
         /// </summary>
         [HttpGet("stats")]
-        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<ActionResult<WorkoutStatsDTO>> GetWorkoutStats([FromQuery] int? empresaId = null, [FromQuery] int? clientId = null)
         {
             try
             {
+                // Escopo por papel:
+                // - COMPANY: força empresaId pelo token
+                // - CLIENTE: força clientId pelo token
+                var scopedEmpresaId = GetScopedEmpresaId();
+                if (scopedEmpresaId.HasValue)
+                    empresaId = scopedEmpresaId.Value;
+
+                var scopedClientId = GetScopedClientId();
+                if (scopedClientId.HasValue)
+                    clientId = scopedClientId.Value;
+
                 var stats = await _workoutService.GetWorkoutStatsAsync(empresaId, clientId);
                 return Ok(stats);
             }
