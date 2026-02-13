@@ -80,7 +80,7 @@ namespace ControlApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "ADMIN,COMPANY")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<FeedbacksPagedDTO>> GetPagedFeedbacks(
             [FromQuery] FeedbackFiltersDTO filters,
             [FromQuery] int pageNumber = 1,
@@ -90,6 +90,10 @@ namespace ControlApi.Controllers
             var scopedEmpresaId = GetScopedEmpresaId();
             if (scopedEmpresaId.HasValue)
                 empresaId = scopedEmpresaId.Value;
+
+            var scopedClientId = GetScopedClientId();
+            if (scopedClientId.HasValue)
+                filters.ClientId = scopedClientId.Value;
 
             var result = await _feedbackService.GetPagedFeedbacksAsync(filters, pageNumber, pageSize, empresaId);
             return Ok(result);

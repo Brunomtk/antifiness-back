@@ -1,11 +1,11 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ControlApi.Helpers;
 using Core.DTO.User;
 using Services;
 using System.ComponentModel.DataAnnotations;
 using Core.Enums.User;
+using ControlApi.Helpers;
 
 namespace ControlApi.Controllers
 {
@@ -19,6 +19,12 @@ namespace ControlApi.Controllers
         public UsersController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        private bool IsAdmin()
+        {
+            var role = (User.GetRole() ?? string.Empty).Trim();
+            return string.Equals(role, "ADMIN", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -156,16 +162,18 @@ namespace ControlApi.Controllers
         }
 
         /// <summary>
-        /// Retorna os dados do usuário logado
+        /// Busca um usuário por ID
         /// </summary>
+        /// <param name="id">ID do usuário</param>
+        /// <returns>Dados do usuário</returns>
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
             try
             {
                 var userId = User.GetUserId();
-                if (userId == null)
-                    return Unauthorized(new { message = "Usuário não autenticado" });
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Token inválido (userId ausente)" });
 
                 var user = await _userService.GetUserByIdAsync(userId.Value);
                 if (user == null)
@@ -180,19 +188,17 @@ namespace ControlApi.Controllers
         }
 
         /// <summary>
-        /// Busca um usuário por ID (admin ou o próprio usuário)
+        /// Busca um usuário por ID
         /// </summary>
-        /// <param name="id">ID do usuário</param>
-        /// <returns>Dados do usuário</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById([FromRoute] int id)
         {
             try
             {
-                if (!User.IsInRole("ADMIN"))
+                if (!IsAdmin())
                 {
-                    var selfId = User.GetUserId();
-                    if (selfId == null || selfId.Value != id)
+                    var myId = User.GetUserId();
+                    if (!myId.HasValue || myId.Value != id)
                         return Forbid();
                 }
 
@@ -219,11 +225,10 @@ namespace ControlApi.Controllers
         {
             try
             {
-                // Admin pode atualizar qualquer usuário; não-admin só pode atualizar a si mesmo.
-                if (!User.IsInRole("ADMIN"))
+                if (!IsAdmin())
                 {
-                    var selfId = User.GetUserId();
-                    if (selfId == null || selfId.Value != id)
+                    var myId = User.GetUserId();
+                    if (!myId.HasValue || myId.Value != id)
                         return Forbid();
                 }
 

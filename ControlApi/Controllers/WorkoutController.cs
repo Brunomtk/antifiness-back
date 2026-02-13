@@ -51,6 +51,7 @@ namespace ControlApi.Controllers
         /// Lista todos os treinos com filtros opcionais
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<WorkoutsPagedDTO>> GetWorkouts([FromQuery] WorkoutFiltersDTO filters)
         {
             try
@@ -76,7 +77,6 @@ namespace ControlApi.Controllers
         {
             try
             {
-                // Escopo: COMPANY força empresaId pelo token; CLIENTE só pode ver os próprios treinos
                 var scopedEmpresaId = GetScopedEmpresaId();
                 if (scopedEmpresaId.HasValue)
                     empresaId = scopedEmpresaId.Value;
@@ -277,13 +277,11 @@ try
         /// Obtém estatísticas de treinos
         /// </summary>
         [HttpGet("stats")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<WorkoutStatsDTO>> GetWorkoutStats([FromQuery] int? empresaId = null, [FromQuery] int? clientId = null)
         {
             try
             {
-                // Escopo por papel:
-                // - COMPANY: força empresaId pelo token
-                // - CLIENTE: força clientId pelo token
                 var scopedEmpresaId = GetScopedEmpresaId();
                 if (scopedEmpresaId.HasValue)
                     empresaId = scopedEmpresaId.Value;

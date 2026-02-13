@@ -63,7 +63,6 @@ namespace ControlApi.Controllers
         /// Lista todas as dietas com filtros e paginação
         /// </summary>
         [HttpGet]
-        // CLIENTE pode listar apenas as próprias dietas (clientId vem do token)
         [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<DietsPagedDTO>> GetAllDiets(
             [FromQuery] int pageNumber = 1,
@@ -86,7 +85,6 @@ namespace ControlApi.Controllers
                 if (scopedEmpresaId.HasValue)
                     empresaId = scopedEmpresaId.Value;
 
-                // Se for CLIENTE, força o filtro pelo ClientId do token
                 var scopedClientId = GetScopedClientId();
                 if (scopedClientId.HasValue)
                     clientId = scopedClientId.Value;
@@ -221,12 +219,19 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Estatísticas completas das dietas</returns>
         [HttpGet("stats")]
-        [Authorize(Roles = "ADMIN,COMPANY")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         public async Task<ActionResult<DietStatsDTO>> GetDietStats()
         {
             try
             {
-                var stats = await _dietService.GetDietStatsAsync();
+                // Para CLIENTE, retornamos estatísticas apenas do próprio clientId.
+                // Para COMPANY, fica restrito à própria empresa (quando aplicável).
+                var scopedClientId = GetScopedClientId();
+                var scopedEmpresaId = GetScopedEmpresaId();
+                var empresaIdForStats = scopedEmpresaId;
+                var clientIdForStats = scopedClientId;
+
+                var stats = await _dietService.GetDietStatsAsync(empresaIdForStats, clientIdForStats);
                 return Ok(stats);
             }
             catch (Exception ex)

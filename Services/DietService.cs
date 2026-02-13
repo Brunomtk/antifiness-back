@@ -19,7 +19,9 @@ namespace Services
         Task<DietResponse> CreateDietAsync(CreateDietRequest request);
         Task<DietResponse?> UpdateDietAsync(int id, UpdateDietRequest request);
         Task<bool> DeleteDietAsync(int id);
+        // Stats
         Task<DietStatsDTO> GetDietStatsAsync();
+        Task<DietStatsDTO> GetDietStatsAsync(int? empresaId, int? clientId);
 
         // Meals
         Task<List<DietMealResponse>> GetDietMealsAsync(int dietId);
@@ -199,7 +201,30 @@ namespace Services
 
         public async Task<DietStatsDTO> GetDietStatsAsync()
         {
-            var allDiets = (await _dietRepository.GetAll()).ToList();
+            // Mantém compatibilidade com chamadas antigas (admin)
+            return await GetDietStatsAsync(null, null);
+        }
+
+        public async Task<DietStatsDTO> GetDietStatsAsync(int? empresaId, int? clientId)
+        {
+            // Carrega dietas com Meals/Progress para stats confiáveis
+            var repo = (_dietRepository as Infrastructure.Repositories.DietRepository);
+            var allDiets = new List<Diet>();
+
+            if (clientId.HasValue)
+            {
+                allDiets = (await repo!.GetByClientIdAsync(clientId.Value)).ToList();
+            }
+            else if (empresaId.HasValue)
+            {
+                allDiets = (await repo!.GetByEmpresaIdAsync(empresaId.Value)).ToList();
+            }
+            else
+            {
+                // Admin/global
+                allDiets = (await repo!.GetAllDetailedAsync()).ToList();
+            }
+
             var totalDiets = allDiets.Count;
 
             if (totalDiets == 0)
