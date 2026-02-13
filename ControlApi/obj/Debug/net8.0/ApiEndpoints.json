@@ -3642,6 +3642,16 @@
   },
   {
     "ContainingType": "ControlApi.Controllers.UsersController",
+    "Method": "GetMe",
+    "RelativePath": "api/Users/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ControlApi.Controllers.UsersController",
     "Method": "RefreshToken",
     "RelativePath": "api/Users/refresh-token",
     "HttpMethod": "POST",

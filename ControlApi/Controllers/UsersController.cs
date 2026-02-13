@@ -1,6 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using ControlApi.Helpers;
 using Core.DTO.User;
 using Services;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +11,7 @@ namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "ADMIN")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -111,7 +112,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados do usuário</param>
         /// <returns>Sucesso ou falha na criação</returns>
         [HttpPost("create")]
-        [Authorize]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             try
@@ -137,7 +138,7 @@ namespace ControlApi.Controllers
         /// <param name="search">Busca por nome ou email</param>
         /// <returns>Lista de usuários</returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetUsers(
             [FromQuery] string? role = null,
             [FromQuery] string? status = null,
@@ -155,16 +156,46 @@ namespace ControlApi.Controllers
         }
 
         /// <summary>
-        /// Busca um usuário por ID
+        /// Retorna os dados do usuário logado
+        /// </summary>
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            try
+            {
+                var userId = User.GetUserId();
+                if (userId == null)
+                    return Unauthorized(new { message = "Usuário não autenticado" });
+
+                var user = await _userService.GetUserByIdAsync(userId.Value);
+                if (user == null)
+                    return NotFound(new { message = "Usuário não encontrado" });
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Busca um usuário por ID (admin ou o próprio usuário)
         /// </summary>
         /// <param name="id">ID do usuário</param>
         /// <returns>Dados do usuário</returns>
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<IActionResult> GetUserById([FromRoute] int id)
         {
             try
             {
+                if (!User.IsInRole("ADMIN"))
+                {
+                    var selfId = User.GetUserId();
+                    if (selfId == null || selfId.Value != id)
+                        return Forbid();
+                }
+
                 var user = await _userService.GetUserByIdAsync(id);
                 if (user == null)
                     return NotFound(new { message = "Usuário não encontrado" });
@@ -184,11 +215,18 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados para atualização</param>
         /// <returns>Sucesso ou falha na atualização</returns>
         [HttpPut("{id}")]
-        [Authorize]
         public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UpdateUserRequest request)
         {
             try
             {
+                // Admin pode atualizar qualquer usuário; não-admin só pode atualizar a si mesmo.
+                if (!User.IsInRole("ADMIN"))
+                {
+                    var selfId = User.GetUserId();
+                    if (selfId == null || selfId.Value != id)
+                        return Forbid();
+                }
+
                 var result = await _userService.UpdateUserAsync(id, request);
                 if (!result)
                     return NotFound(new { message = "Usuário não encontrado" });
@@ -211,7 +249,7 @@ namespace ControlApi.Controllers
         /// <param name="id">ID do usuário</param>
         /// <returns>Sucesso ou falha na remoção</returns>
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
             try
@@ -233,7 +271,7 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Dados estatísticos</returns>
         [HttpGet("stats")]
-        [Authorize]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetUserStats()
         {
             try
