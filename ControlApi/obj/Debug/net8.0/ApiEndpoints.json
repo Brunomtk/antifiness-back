@@ -99,6 +99,16 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "ControlApi.Controllers.AdminSessionsController",
+    "Method": "LogoutNonAdmin",
+    "RelativePath": "api/admin/sessions/logout-non-admin",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "ControlApi.Controllers.ClientController",
     "Method": "GetClients",
     "RelativePath": "api/Client",

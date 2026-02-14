@@ -1,8 +1,10 @@
 using System.Text;
 using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -82,7 +84,6 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-builder.Services.AddSingleton<IJWTManager, JWTManager>();
 
 // ---------------------------------------------------------
 // CORS POLICY (Local + Produção)
@@ -132,6 +133,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                // Valida revogação em massa via TokenVersion (claim "tv").
+                var userIdStr = context.Principal?.FindFirst("userId")?.Value
+                               ?? context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? context.Principal?.FindFirst("sub")?.Value;
+                var tvStr = context.Principal?.FindFirst("tv")?.Value;
+
+                if (!int.TryParse(userIdStr, out var userId) || !int.TryParse(tvStr, out var tokenVersion))
+                {
+                    context.Fail("Invalid token claims.");
+                    return;
+                }
+
+                var db = context.HttpContext.RequestServices.GetRequiredService<DbContextClass>();
+                var currentTv = await db.Users
+                    .AsNoTracking()
+                    .Where(u => u.Id == userId)
+                    .Select(u => u.TokenVersion)
+                    .FirstOrDefaultAsync();
+
+                if (currentTv != tokenVersion)
+                {
+                    context.Fail("Token revoked.");
+                }
+            }
+        };
+
     });
 
 // ---------------------------------------------------------

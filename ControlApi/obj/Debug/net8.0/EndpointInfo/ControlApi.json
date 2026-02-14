@@ -185,6 +185,18 @@
         }
       }
     },
+    "/api/admin/sessions/logout-non-admin": {
+      "post": {
+        "tags": [
+          "AdminSessions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Client": {
       "get": {
         "tags": [

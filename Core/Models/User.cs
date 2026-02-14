@@ -38,6 +38,13 @@ namespace Core.Models
         public int? ClientId { get; set; }
         public int? EmpresaId { get; set; }
 
+        /// <summary>
+        /// Versão de segurança do token (revogação em massa).
+        /// Ao incrementar esse valor, todos os JWTs emitidos anteriormente para o usuário
+        /// passam a ser inválidos na próxima requisição.
+        /// </summary>
+        public int TokenVersion { get; set; } = 0;
+
         // Timestamps herdados de BaseModel: CreatedAt, UpdatedAt
 
         // Navigation properties

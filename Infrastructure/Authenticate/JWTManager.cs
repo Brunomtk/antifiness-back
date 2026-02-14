@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using Core.DTO.User;
 using Core.Enums.User;
 using Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Infrastructure;
 
 namespace Infrastructure.Authenticate
 {
@@ -31,10 +33,12 @@ namespace Infrastructure.Authenticate
     public sealed class JWTManager : IJWTManager
     {
         private readonly IConfiguration _configuration;
+        private readonly DbContextClass _db;
 
-        public JWTManager(IConfiguration configuration)
+        public JWTManager(IConfiguration configuration, DbContextClass db)
         {
             _configuration = configuration;
+            _db = db;
         }
 
         public Task<TokenJWT> AuthenticateAsync(User user, bool rememberMe = false)
@@ -51,14 +55,15 @@ namespace Infrastructure.Authenticate
                 status: user.Status,
                 rememberMe: rememberMe,
                 empresaId: user.EmpresaId,
-                clientId: user.ClientId
+                clientId: user.ClientId,
+                tokenVersion: user.TokenVersion
             );
 
             var tokens = GenerateTokens(baseClaims, rememberMe);
             return Task.FromResult(tokens);
         }
 
-        public Task<TokenJWT> RefreshTokenAsync(string refreshToken)
+        public async Task<TokenJWT> RefreshTokenAsync(string refreshToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
                 throw new SecurityTokenException("Refresh token é obrigatório.");
@@ -113,6 +118,23 @@ namespace Infrastructure.Authenticate
                 int userId = 0;
                 int.TryParse(idStr, out userId);
 
+                // TokenVersion do refresh token (se ausente, força re-login)
+                var tvStr = principal.FindFirst("tv")?.Value;
+                int.TryParse(tvStr, out var tokenVersionFromToken);
+
+                // Valida revogação em massa também no refresh
+                if (userId > 0)
+                {
+                    var currentTv = await _db.Users
+                        .AsNoTracking()
+                        .Where(u => u.Id == userId)
+                        .Select(u => u.TokenVersion)
+                        .FirstOrDefaultAsync();
+
+                    if (currentTv != tokenVersionFromToken)
+                        throw new SecurityTokenException("Token revogado.");
+                }
+
                 if (!Enum.TryParse<UserType>(typeStr, out var userType))
                     userType = UserType.Client;
 
@@ -129,12 +151,13 @@ namespace Infrastructure.Authenticate
                     status: userStatus,
                     rememberMe: rememberMe,
                     empresaId: TryParseNullableInt(principal.FindFirst("empresaId")?.Value),
-                    clientId: TryParseNullableInt(principal.FindFirst("clientId")?.Value)
+                    clientId: TryParseNullableInt(principal.FindFirst("clientId")?.Value),
+                    tokenVersion: tokenVersionFromToken
                 );
 
                 // Gera novo par de tokens
                 var tokens = GenerateTokens(baseClaims, rememberMe);
-                return Task.FromResult(tokens);
+                return tokens;
             }
             catch (SecurityTokenException)
             {
@@ -176,7 +199,8 @@ namespace Infrastructure.Authenticate
             UserStatus status,
             bool rememberMe,
             int? empresaId,
-            int? clientId)
+            int? clientId,
+            int tokenVersion)
         {
             var role = RoleFromType(type);
             return new[]
@@ -194,6 +218,7 @@ namespace Infrastructure.Authenticate
                 new Claim("userStatusName",                   status.ToString()),
                 new Claim("empresaId",                       (empresaId ?? 0).ToString()),
                 new Claim("clientId",                        (clientId ?? 0).ToString()),
+                new Claim("tv",                               tokenVersion.ToString()),
                 new Claim("rememberMe",                       rememberMe ? "true" : "false")
             };
         }

@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DbContextClass))]
-    [Migration("20260214033147_Copyfoodsexercices")]
-    partial class Copyfoodsexercices
+    [Migration("20260214224340_Logout")]
+    partial class Logout
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1842,6 +1842,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TokenVersion")
                         .HasColumnType("integer");
 
                     b.Property<int>("Type")

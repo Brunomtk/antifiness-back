@@ -30,8 +30,8 @@ namespace Infrastructure.ServiceExtension
             // Add repositories
             services.AddRepositories();
 
-            // JWT
-            services.AddSingleton<IJWTManager, JWTManager>();
+            // JWT (scoped para permitir validação de revogação com DbContext)
+            services.AddScoped<IJWTManager, JWTManager>();
 
             return services;
         }
