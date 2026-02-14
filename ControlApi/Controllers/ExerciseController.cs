@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Services;
 using Core.DTO.Workout;
+using ControlApi.Helpers;
 
 namespace ControlApi.Controllers
 {
@@ -25,6 +26,14 @@ namespace ControlApi.Controllers
         {
             try
             {
+                var role = User.GetRole();
+                if (role == "COMPANY")
+                {
+                    var empresaId = User.GetEmpresaId();
+                    if (empresaId == null) return BadRequest(new { message = "EmpresaId não encontrado no token." });
+                    filters.EmpresaId = empresaId;
+                }
+
                 var result = await _workoutService.GetExercisesAsync(filters);
                 return Ok(result);
             }
@@ -42,6 +51,10 @@ namespace ControlApi.Controllers
         {
             try
             {
+                var role = User.GetRole();
+                if (role == "COMPANY")
+                    empresaId = User.GetEmpresaId();
+
                 var exercise = await _workoutService.GetExerciseByIdAsync(id, empresaId);
                 if (exercise == null)
                     return NotFound(new { message = "Exercício não encontrado" });
@@ -65,6 +78,14 @@ namespace ControlApi.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                var role = User.GetRole();
+                if (role == "COMPANY")
+                {
+                    var empresaId = User.GetEmpresaId();
+                    if (empresaId == null) return BadRequest(new { message = "EmpresaId não encontrado no token." });
+                    request.EmpresaId = empresaId.Value;
+                }
+
                 var exercise = await _workoutService.CreateExerciseAsync(request);
                 return CreatedAtAction(nameof(GetExercise), new { id = exercise.Id }, exercise);
             }
@@ -84,6 +105,14 @@ namespace ControlApi.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
+
+                var role = User.GetRole();
+                if (role == "COMPANY")
+                {
+                    var empresaId = User.GetEmpresaId();
+                    if (empresaId == null) return BadRequest(new { message = "EmpresaId não encontrado no token." });
+                    request.EmpresaId = empresaId.Value;
+                }
 
                 var exercise = await _workoutService.UpdateExerciseAsync(id, request);
                 if (exercise == null)
@@ -105,6 +134,17 @@ namespace ControlApi.Controllers
         {
             try
             {
+                var role = User.GetRole();
+                if (role == "COMPANY")
+                {
+                    var empresaId = User.GetEmpresaId();
+                    if (empresaId == null) return BadRequest(new { message = "EmpresaId não encontrado no token." });
+
+                    // garante que não apague de outra empresa
+                    var exists = await _workoutService.GetExerciseByIdAsync(id, empresaId);
+                    if (exists == null) return NotFound(new { message = "Exercício não encontrado" });
+                }
+
                 var success = await _workoutService.DeleteExerciseAsync(id);
                 if (!success)
                     return NotFound(new { message = "Exercício não encontrado" });

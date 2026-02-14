@@ -5,6 +5,186 @@
     "version": "v1"
   },
   "paths": {
+    "/api/admin/catalog/foods": {
+      "get": {
+        "tags": [
+          "AdminCatalog"
+        ],
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FoodCategory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FoodResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/catalog/foods/copy": {
+      "post": {
+        "tags": [
+          "AdminCatalog"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyFoodsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyFoodsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyFoodsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/admin/catalog/exercises": {
+      "get": {
+        "tags": [
+          "AdminCatalog"
+        ],
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/catalog/exercises/copy": {
+      "post": {
+        "tags": [
+          "AdminCatalog"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyExercisesRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyExercisesRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyExercisesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Client": {
       "get": {
         "tags": [
@@ -8043,6 +8223,47 @@
         },
         "additionalProperties": false
       },
+      "CopyExercisesRequest": {
+        "type": "object",
+        "properties": {
+          "sourceEmpresaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "targetEmpresaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overwrite": {
+            "type": "boolean"
+          },
+          "includeInactive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CopyFoodsRequest": {
+        "type": "object",
+        "properties": {
+          "sourceEmpresaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "targetEmpresaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overwrite": {
+            "type": "boolean"
+          },
+          "includeInactive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "CourseCategory": {
         "enum": [
           1,
@@ -10905,6 +11126,11 @@
             "type": "integer",
             "format": "int32"
           },
+          "empresaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "name": {
             "type": "string",
             "nullable": true
@@ -12567,6 +12793,11 @@
       "UpdateExerciseRequest": {
         "type": "object",
         "properties": {
+          "empresaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "name": {
             "maxLength": 200,
             "minLength": 0,

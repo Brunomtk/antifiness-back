@@ -1,12 +1,15 @@
 using Core.DTO.Diet;
 using Core.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using ControlApi.Helpers;
 using Services;
 
 namespace ControlApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class FoodController : ControllerBase
     {
         private readonly IDietService _dietService;
@@ -29,7 +32,12 @@ namespace ControlApi.Controllers
         {
             try
             {
-                var foods = await _dietService.GetAllFoodsAsync(search, category);
+                var role = User.GetRole();
+                if (role != "COMPANY" && role != "ADMIN")
+                    return Forbid();
+
+                var empresaId = User.GetEmpresaId();
+                var foods = await _dietService.GetAllFoodsAsync(empresaId, search, category);
                 return Ok(foods);
             }
             catch (Exception ex)
@@ -48,7 +56,12 @@ namespace ControlApi.Controllers
         {
             try
             {
-                var food = await _dietService.GetFoodByIdAsync(id);
+                var role = User.GetRole();
+                if (role != "COMPANY" && role != "ADMIN")
+                    return Forbid();
+
+                var empresaId = User.GetEmpresaId();
+                var food = await _dietService.GetFoodByIdAsync(id, empresaId);
                 if (food == null)
                     return NotFound(new { message = "Alimento não encontrado" });
 
@@ -73,7 +86,15 @@ namespace ControlApi.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var food = await _dietService.CreateFoodAsync(request);
+                var role = User.GetRole();
+                if (role != "COMPANY" && role != "ADMIN")
+                    return Forbid();
+
+                var empresaId = User.GetEmpresaId();
+                if (empresaId == null)
+                    return BadRequest(new { message = "EmpresaId não encontrado no token." });
+
+                var food = await _dietService.CreateFoodAsync(empresaId.Value, request);
                 return CreatedAtAction(nameof(GetFoodById), new { id = food.Id }, food);
             }
             catch (Exception ex)
@@ -96,7 +117,15 @@ namespace ControlApi.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var food = await _dietService.UpdateFoodAsync(id, request);
+                var role = User.GetRole();
+                if (role != "COMPANY" && role != "ADMIN")
+                    return Forbid();
+
+                var empresaId = User.GetEmpresaId();
+                if (empresaId == null)
+                    return BadRequest(new { message = "EmpresaId não encontrado no token." });
+
+                var food = await _dietService.UpdateFoodAsync(empresaId.Value, id, request);
                 if (food == null)
                     return NotFound(new { message = "Alimento não encontrado" });
 
@@ -118,7 +147,15 @@ namespace ControlApi.Controllers
         {
             try
             {
-                var success = await _dietService.DeleteFoodAsync(id);
+                var role = User.GetRole();
+                if (role != "COMPANY" && role != "ADMIN")
+                    return Forbid();
+
+                var empresaId = User.GetEmpresaId();
+                if (empresaId == null)
+                    return BadRequest(new { message = "EmpresaId não encontrado no token." });
+
+                var success = await _dietService.DeleteFoodAsync(empresaId.Value, id);
                 if (!success)
                     return NotFound(new { message = "Alimento não encontrado" });
 

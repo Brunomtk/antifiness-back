@@ -5,6 +5,12 @@ namespace Core.DTO.Workout.Exercise
 {
     public class UpdateExerciseRequest
     {
+        /// <summary>
+        /// Empresa proprietária do exercício. No fluxo normal (COMPANY), o backend sobrescreve
+        /// esse valor com o EmpresaId vindo do token. Para ADMIN, pode ser usado quando necessário.
+        /// </summary>
+        public int? EmpresaId { get; set; }
+
         [StringLength(200, ErrorMessage = "Nome deve ter no máximo 200 caracteres")]
         public string? Name { get; set; }
 

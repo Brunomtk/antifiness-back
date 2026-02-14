@@ -94,6 +94,7 @@ namespace Infrastructure
             modelBuilder.Entity<Core.Models.Diet.DietMealFood>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.DietSupplement>().HasKey(e => e.Id);
             modelBuilder.Entity<Core.Models.Diet.Food>().HasKey(e => e.Id);
+            modelBuilder.Entity<Core.Models.Diet.Food>().HasIndex(e => e.EmpresaId);
             modelBuilder.Entity<Core.Models.Diet.DietProgress>().HasKey(e => e.Id);
             modelBuilder.Entity<Feedback>().HasKey(e => e.Id);
             modelBuilder.Entity<Course>().HasKey(e => e.Id);

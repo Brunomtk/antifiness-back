@@ -37,11 +37,15 @@ namespace Services
         Task<bool> DeleteDietSupplementAsync(int dietId, int supplementId);
 
         // Foods
-        Task<List<FoodResponse>> GetAllFoodsAsync(string? search = null, FoodCategory? category = null);
-        Task<FoodResponse?> GetFoodByIdAsync(int id);
-        Task<FoodResponse> CreateFoodAsync(CreateFoodRequest request);
-        Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest request);
-        Task<bool> DeleteFoodAsync(int id);
+        Task<List<FoodResponse>> GetAllFoodsAsync(int? empresaId, string? search = null, FoodCategory? category = null);
+        Task<FoodResponse?> GetFoodByIdAsync(int id, int? empresaId);
+        Task<FoodResponse> CreateFoodAsync(int empresaId, CreateFoodRequest request);
+        Task<FoodResponse?> UpdateFoodAsync(int empresaId, int id, UpdateFoodRequest request);
+        Task<bool> DeleteFoodAsync(int empresaId, int id);
+
+        // Admin catalog ops
+        Task<List<FoodResponse>> GetAllFoodsAdminAsync(int? empresaId = null, string? search = null, FoodCategory? category = null);
+        Task<int> CopyFoodsToEmpresaAsync(int? sourceEmpresaId, int targetEmpresaId, bool overwrite = false, bool includeInactive = false);
 
         // Progress
         Task<List<DietProgressResponse>> GetDietProgressAsync(int dietId);
@@ -509,9 +513,14 @@ namespace Services
         }
 
         // ===== Foods =====
-        public async Task<List<FoodResponse>> GetAllFoodsAsync(string? search = null, FoodCategory? category = null)
+        public async Task<List<FoodResponse>> GetAllFoodsAsync(int? empresaId, string? search = null, FoodCategory? category = null)
         {
-            var foods = await _foodRepository.GetAll();
+            if (empresaId == null) return new List<FoodResponse>();
+
+            // Mantém no banco o máximo possível (evita trazer a tabela inteira)
+            var foods = (await _foodRepository.GetAllActiveAsync())
+                .Where(f => f.EmpresaId == empresaId);
+
             var query = foods.AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
@@ -523,17 +532,18 @@ namespace Services
             return query.Select(MapToFoodResponse).ToList();
         }
 
-        public async Task<FoodResponse?> GetFoodByIdAsync(int id)
+        public async Task<FoodResponse?> GetFoodByIdAsync(int id, int? empresaId)
         {
             var foods = await _foodRepository.GetAll();
-            var food = foods.FirstOrDefault(f => f.Id == id);
+            var food = foods.FirstOrDefault(f => f.Id == id && f.EmpresaId == empresaId);
             return food != null ? MapToFoodResponse(food) : null;
         }
 
-        public async Task<FoodResponse> CreateFoodAsync(CreateFoodRequest request)
+        public async Task<FoodResponse> CreateFoodAsync(int empresaId, CreateFoodRequest request)
         {
             var food = new Food
             {
+                EmpresaId = empresaId,
                 Name = request.Name,
                 Description = request.Description,
                 Category = request.Category,
@@ -553,10 +563,11 @@ namespace Services
             await _unitOfWork.SaveAsync();
             return MapToFoodResponse(food);
         }
-public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest request)
+
+        public async Task<FoodResponse?> UpdateFoodAsync(int empresaId, int id, UpdateFoodRequest request)
         {
             var foods = await _foodRepository.GetAll();
-            var food = foods.FirstOrDefault(f => f.Id == id);
+            var food = foods.FirstOrDefault(f => f.Id == id && f.EmpresaId == empresaId);
             if (food == null) return null;
 
             if (!string.IsNullOrEmpty(request.Name)) food.Name = request.Name;
@@ -603,10 +614,10 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
             return MapToFoodResponse(food);
         }
 
-        public async Task<bool> DeleteFoodAsync(int id)
+        public async Task<bool> DeleteFoodAsync(int empresaId, int id)
         {
             var foods = await _foodRepository.GetAll();
-            var food = foods.FirstOrDefault(f => f.Id == id);
+            var food = foods.FirstOrDefault(f => f.Id == id && f.EmpresaId == empresaId);
             if (food == null) return false;
 
             food.IsActive = false;
@@ -615,6 +626,96 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
             _foodRepository.Update(food);
             await _unitOfWork.SaveAsync();
             return true;
+        }
+
+        // ===== Admin catalog ops =====
+        public async Task<List<FoodResponse>> GetAllFoodsAdminAsync(int? empresaId = null, string? search = null, FoodCategory? category = null)
+        {
+            var foods = await _foodRepository.GetAll();
+            var query = foods.AsQueryable();
+
+            if (empresaId != null)
+                query = query.Where(f => f.EmpresaId == empresaId);
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(f => f.Name.Contains(search) || (f.Description != null && f.Description.Contains(search)));
+
+            if (category.HasValue)
+                query = query.Where(f => f.Category == category.Value);
+
+            return query.Select(MapToFoodResponse).ToList();
+        }
+
+        public async Task<int> CopyFoodsToEmpresaAsync(int? sourceEmpresaId, int targetEmpresaId, bool overwrite = false, bool includeInactive = false)
+        {
+            var all = await _foodRepository.GetAll();
+            var src = all.AsQueryable();
+
+            if (sourceEmpresaId == null)
+                src = src.Where(f => f.EmpresaId == null);
+            else
+                src = src.Where(f => f.EmpresaId == sourceEmpresaId);
+
+            if (!includeInactive)
+                src = src.Where(f => f.IsActive);
+
+            var targetExisting = all.Where(f => f.EmpresaId == targetEmpresaId).ToList();
+            var existingNames = new HashSet<string>(targetExisting.Select(f => f.Name.Trim().ToLowerInvariant()));
+
+            var count = 0;
+            foreach (var f in src.ToList())
+            {
+                var key = f.Name.Trim().ToLowerInvariant();
+
+                if (existingNames.Contains(key))
+                {
+                    if (!overwrite) continue;
+
+                    // overwrite simples por nome (mantém o registro existente e atualiza campos)
+                    var existing = targetExisting.First(x => x.Name.Trim().ToLowerInvariant() == key);
+                    existing.Description = f.Description;
+                    existing.Category = f.Category;
+                    existing.CaloriesPer100g = f.CaloriesPer100g;
+                    existing.ProteinPer100g = f.ProteinPer100g;
+                    existing.CarbsPer100g = f.CarbsPer100g;
+                    existing.FatPer100g = f.FatPer100g;
+                    existing.FiberPer100g = f.FiberPer100g;
+                    existing.SodiumPer100g = f.SodiumPer100g;
+                    existing.Allergens = f.Allergens;
+                    existing.CommonPortions = f.CommonPortions;
+                    existing.IsActive = f.IsActive;
+                    existing.Micros = f.Micros;
+                    existing.UpdatedDate = DateTime.UtcNow;
+                    _foodRepository.Update(existing);
+                    count++;
+                    continue;
+                }
+
+                var clone = new Food
+                {
+                    EmpresaId = targetEmpresaId,
+                    Name = f.Name,
+                    Description = f.Description,
+                    Category = f.Category,
+                    CaloriesPer100g = f.CaloriesPer100g,
+                    ProteinPer100g = f.ProteinPer100g,
+                    CarbsPer100g = f.CarbsPer100g,
+                    FatPer100g = f.FatPer100g,
+                    FiberPer100g = f.FiberPer100g,
+                    SodiumPer100g = f.SodiumPer100g,
+                    Allergens = f.Allergens,
+                    CommonPortions = f.CommonPortions,
+                    IsActive = f.IsActive,
+                    Micros = f.Micros
+                };
+
+                _foodRepository.Add(clone);
+                existingNames.Add(key);
+                count++;
+            }
+
+            if (count > 0) await _unitOfWork.SaveAsync();
+            return count;
         }
 
         // ===== Progress =====
@@ -839,6 +940,7 @@ public async Task<FoodResponse?> UpdateFoodAsync(int id, UpdateFoodRequest reque
             return new FoodResponse
             {
                 Id = food.Id,
+                EmpresaId = food.EmpresaId,
                 Name = food.Name,
                 Description = food.Description,
                 Category = food.Category,

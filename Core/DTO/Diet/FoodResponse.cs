@@ -6,6 +6,7 @@ namespace Core.DTO.Diet
     public class FoodResponse
     {
         public int Id { get; set; }
+        public int? EmpresaId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public FoodCategory? Category { get; set; }

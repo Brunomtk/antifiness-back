@@ -14,6 +14,10 @@ namespace Services
         Task<ExerciseResponse?> UpdateExerciseAsync(int id, UpdateExerciseRequest request);
         Task<bool> DeleteExerciseAsync(int id);
 
+        // Admin catalog ops
+        Task<List<ExerciseResponse>> GetAllExercisesAdminAsync(int? empresaId = null, bool includeInactive = false);
+        Task<int> CopyExercisesToEmpresaAsync(int sourceEmpresaId, int targetEmpresaId, bool overwrite = false, bool includeInactive = false);
+
         // Workout methods
         Task<WorkoutsPagedDTO> GetWorkoutsAsync(WorkoutFiltersDTO filters);
         Task<WorkoutResponse?> GetWorkoutByIdAsync(int id, int? empresaId = null);

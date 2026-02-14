@@ -192,6 +192,85 @@ namespace Services
             return true;
         }
 
+        // ===== Admin catalog ops =====
+        public async Task<List<ExerciseResponse>> GetAllExercisesAdminAsync(int? empresaId = null, bool includeInactive = false)
+        {
+            var all = await _exerciseRepository.GetAll();
+            var query = all.AsQueryable();
+
+            if (!includeInactive)
+                query = query.Where(e => e.IsActive);
+
+            if (empresaId.HasValue)
+                query = query.Where(e => e.EmpresaId == empresaId.Value);
+
+            return query.OrderBy(e => e.Name)
+                        .Select(MapToExerciseResponse)
+                        .ToList();
+        }
+
+        public async Task<int> CopyExercisesToEmpresaAsync(int sourceEmpresaId, int targetEmpresaId, bool overwrite = false, bool includeInactive = false)
+        {
+            var all = await _exerciseRepository.GetAll();
+
+            var src = all.Where(e => e.EmpresaId == sourceEmpresaId);
+            if (!includeInactive)
+                src = src.Where(e => e.IsActive);
+
+            var targetExisting = all.Where(e => e.EmpresaId == targetEmpresaId).ToList();
+            var existingNames = new HashSet<string>(targetExisting.Select(e => e.Name.Trim().ToLowerInvariant()));
+
+            var count = 0;
+            foreach (var e in src.ToList())
+            {
+                var key = e.Name.Trim().ToLowerInvariant();
+
+                if (existingNames.Contains(key))
+                {
+                    if (!overwrite) continue;
+
+                    var existing = targetExisting.First(x => x.Name.Trim().ToLowerInvariant() == key);
+                    existing.Description = e.Description;
+                    existing.Instructions = e.Instructions;
+                    existing.MuscleGroups = e.MuscleGroups;
+                    existing.Equipment = e.Equipment;
+                    existing.Difficulty = e.Difficulty;
+                    existing.Category = e.Category;
+                    existing.Tips = e.Tips;
+                    existing.Variations = e.Variations;
+                    existing.MediaUrls = e.MediaUrls;
+                    existing.IsActive = e.IsActive;
+                    existing.UpdatedDate = DateTime.UtcNow;
+                    _exerciseRepository.Update(existing);
+                    count++;
+                    continue;
+                }
+
+                var clone = new Exercise
+                {
+                    EmpresaId = targetEmpresaId,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Instructions = e.Instructions,
+                    MuscleGroups = e.MuscleGroups,
+                    Equipment = e.Equipment,
+                    Difficulty = e.Difficulty,
+                    Category = e.Category,
+                    Tips = e.Tips,
+                    Variations = e.Variations,
+                    MediaUrls = e.MediaUrls,
+                    IsActive = e.IsActive
+                };
+
+                _exerciseRepository.Add(clone);
+                existingNames.Add(key);
+                count++;
+            }
+
+            if (count > 0) await _unitOfWork.SaveAsync();
+            return count;
+        }
+
         #endregion
 
         #region Workout Methods

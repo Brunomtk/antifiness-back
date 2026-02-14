@@ -8,6 +8,13 @@ namespace Core.Models.Diet
 {
     public class Food : BaseModel
     {
+        /// <summary>
+        /// Empresa dona do cadastro do alimento.
+        /// Nullable para compatibilidade com bases antigas (alimentos "globais").
+        /// No fluxo normal, a API força/filtra por EmpresaId.
+        /// </summary>
+        public int? EmpresaId { get; set; }
+
         [Required]
         [StringLength(200)]
         public string Name { get; set; } = string.Empty;
