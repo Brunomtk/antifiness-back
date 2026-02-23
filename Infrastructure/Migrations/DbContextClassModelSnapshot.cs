@@ -23,126 +23,6 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Core.Models.AppSettings.AppSetting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Key")
-                        .IsUnique();
-
-                    b.ToTable("AppSettings");
-                });
-
-            modelBuilder.Entity("Core.Models.Billing.CompanySubscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CancelAtPeriodEnd")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("CanceledAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CurrentPeriodEndUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CurrentPeriodStartUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EmpresaId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Provider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderSubscriptionId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SubscriptionPlanId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmpresaId")
-                        .IsUnique();
-
-                    b.HasIndex("SubscriptionPlanId");
-
-                    b.ToTable("CompanySubscriptions");
-                });
-
-            modelBuilder.Entity("Core.Models.Billing.SubscriptionPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Interval")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("PriceCents")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TrialDays")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SubscriptionPlans");
-                });
-
             modelBuilder.Entity("Core.Models.Client.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -697,7 +577,7 @@ namespace Infrastructure.Migrations
                     b.Property<double?>("TotalProtein")
                         .HasColumnType("double precision");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedDate")
@@ -764,39 +644,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("DietMealFoods");
                 });
 
-            modelBuilder.Entity("Core.Models.Diet.DietMealFoodSubstitution", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("FoodId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MealFoodId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FoodId");
-
-                    b.HasIndex("MealFoodId");
-
-                    b.ToTable("DietMealFoodSubstitutions");
-                });
-
             modelBuilder.Entity("Core.Models.Diet.DietProgress", b =>
                 {
                     b.Property<int>("Id")
@@ -847,43 +694,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("DietId");
 
                     b.ToTable("DietProgress");
-                });
-
-            modelBuilder.Entity("Core.Models.Diet.DietSupplement", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DietId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Instructions")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Quantity")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DietId");
-
-                    b.ToTable("DietSupplements");
                 });
 
             modelBuilder.Entity("Core.Models.Diet.Food", b =>
@@ -1745,7 +1555,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PlanId")
                         .HasColumnType("integer");
 
-                    b.Property<TimeSpan?>("Time")
+                    b.Property<TimeSpan>("Time")
                         .HasColumnType("interval");
 
                     b.Property<int>("Type")
@@ -1839,9 +1649,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TokenVersion")
                         .HasColumnType("integer");
 
                     b.Property<int>("Type")
@@ -2034,39 +1841,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("WorkoutExercises");
                 });
 
-            modelBuilder.Entity("Core.Models.Workout.WorkoutExerciseSubstitution", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ExerciseId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("WorkoutExerciseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExerciseId");
-
-                    b.HasIndex("WorkoutExerciseId");
-
-                    b.ToTable("WorkoutExerciseSubstitutions");
-                });
-
             modelBuilder.Entity("Core.Models.Workout.WorkoutProgress", b =>
                 {
                     b.Property<int>("Id")
@@ -2123,25 +1897,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("WorkoutId");
 
                     b.ToTable("WorkoutProgress");
-                });
-
-            modelBuilder.Entity("Core.Models.Billing.CompanySubscription", b =>
-                {
-                    b.HasOne("Core.Models.Empresas", "Empresa")
-                        .WithMany()
-                        .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Models.Billing.SubscriptionPlan", "Plan")
-                        .WithMany()
-                        .HasForeignKey("SubscriptionPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Empresa");
-
-                    b.Navigation("Plan");
                 });
 
             modelBuilder.Entity("Core.Models.Client.Client", b =>
@@ -2493,40 +2248,10 @@ namespace Infrastructure.Migrations
                     b.Navigation("Meal");
                 });
 
-            modelBuilder.Entity("Core.Models.Diet.DietMealFoodSubstitution", b =>
-                {
-                    b.HasOne("Core.Models.Diet.Food", "Food")
-                        .WithMany()
-                        .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Models.Diet.DietMealFood", "MealFood")
-                        .WithMany("Substitutions")
-                        .HasForeignKey("MealFoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Food");
-
-                    b.Navigation("MealFood");
-                });
-
             modelBuilder.Entity("Core.Models.Diet.DietProgress", b =>
                 {
                     b.HasOne("Core.Models.Diet.Diet", "Diet")
                         .WithMany("Progress")
-                        .HasForeignKey("DietId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Diet");
-                });
-
-            modelBuilder.Entity("Core.Models.Diet.DietSupplement", b =>
-                {
-                    b.HasOne("Core.Models.Diet.Diet", "Diet")
-                        .WithMany("Supplements")
                         .HasForeignKey("DietId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3269,25 +2994,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Workout");
                 });
 
-            modelBuilder.Entity("Core.Models.Workout.WorkoutExerciseSubstitution", b =>
-                {
-                    b.HasOne("Core.Models.Workout.Exercise", "Exercise")
-                        .WithMany()
-                        .HasForeignKey("ExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Models.Workout.WorkoutExercise", "WorkoutExercise")
-                        .WithMany("Substitutions")
-                        .HasForeignKey("WorkoutExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exercise");
-
-                    b.Navigation("WorkoutExercise");
-                });
-
             modelBuilder.Entity("Core.Models.Workout.WorkoutProgress", b =>
                 {
                     b.HasOne("Core.Models.Workout.Workout", "Workout")
@@ -3332,18 +3038,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Meals");
 
                     b.Navigation("Progress");
-
-                    b.Navigation("Supplements");
                 });
 
             modelBuilder.Entity("Core.Models.Diet.DietMeal", b =>
                 {
                     b.Navigation("Foods");
-                });
-
-            modelBuilder.Entity("Core.Models.Diet.DietMealFood", b =>
-                {
-                    b.Navigation("Substitutions");
                 });
 
             modelBuilder.Entity("Core.Models.Diet.Food", b =>
@@ -3398,11 +3097,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("WorkoutExercises");
 
                     b.Navigation("WorkoutProgresses");
-                });
-
-            modelBuilder.Entity("Core.Models.Workout.WorkoutExercise", b =>
-                {
-                    b.Navigation("Substitutions");
                 });
 #pragma warning restore 612, 618
         }

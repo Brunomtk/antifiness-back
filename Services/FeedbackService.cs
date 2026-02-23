@@ -227,9 +227,9 @@ namespace Services
             return true;
         }
 
-        public Task<FeedbackStatsDTO> GetFeedbackStatsAsync()
+        public Task<FeedbackStatsDTO> GetFeedbackStatsAsync(int? empresaId = null)
         {
-            return _unitOfWork.Feedbacks.GetFeedbackStatsAsync();
+            return _unitOfWork.Feedbacks.GetFeedbackStatsAsync(empresaId);
         }
 
         public async Task<List<FeedbackResponse>> GetFeedbacksByClientAsync(int clientId, int? empresaId = null)

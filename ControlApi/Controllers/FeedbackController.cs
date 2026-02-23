@@ -131,9 +131,13 @@ namespace ControlApi.Controllers
 
         [HttpGet("stats")]
         [Authorize(Roles = "ADMIN,COMPANY")]
-        public async Task<ActionResult<FeedbackStatsDTO>> GetFeedbackStats()
+        public async Task<ActionResult<FeedbackStatsDTO>> GetFeedbackStats([FromQuery] int? empresaId = null)
         {
-            var stats = await _feedbackService.GetFeedbackStatsAsync();
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                empresaId = scopedEmpresaId.Value;
+
+            var stats = await _feedbackService.GetFeedbackStatsAsync(empresaId);
             return Ok(stats);
         }
 

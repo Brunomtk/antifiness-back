@@ -23,7 +23,7 @@ namespace Services
         Task<ProgressResponse?> UpdateProgressAsync(UpdateProgressRequest request);
         Task<List<ReviewResponse>> GetCourseReviewsAsync(int courseId);
         Task<ReviewResponse> CreateReviewAsync(int courseId, CreateReviewRequest request);
-        Task<CourseStatsDTO> GetCourseStatsAsync();
-        Task<CourseStatsDTO> GetCourseStatsAsync(int courseId);
-    }
+        Task<CourseStatsDTO> GetCourseStatsAsync(int? empresasId = null);
+Task<CourseStatsDTO> GetCourseStatsAsync(int courseId, int? empresasId = null);
+}
 }

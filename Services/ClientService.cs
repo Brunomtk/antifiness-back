@@ -39,8 +39,8 @@ namespace Services
         Task<AchievementDTO?> UpdateAchievementAsync(int clientId, int achievementId, UpdateAchievementRequest request);
         Task<bool> DeleteAchievementAsync(int clientId, int achievementId);
 
-        Task<ClientStatsDTO> GetClientStatsAsync();
-    }
+        Task<ClientStatsDTO> GetClientStatsAsync(int? empresaId = null);
+}
 
 public sealed class ClientService : IClientService
     {
@@ -506,16 +506,22 @@ public async Task<IEnumerable<WorkoutSummaryDTO>> GetWorkoutHistoryAsync(int cli
 }
 
 
-public async Task<ClientStatsDTO> GetClientStatsAsync()
+public async Task<ClientStatsDTO> GetClientStatsAsync(int? empresaId = null)
+        {
 {
     var all = await _uow.Clients.GetAll();
-    var clients = all.Cast<Client>().ToList();
+    var clients = all.Cast<Core.Models.Client.Client>().ToList();
+
+    if (empresaId.HasValue)
+        clients = clients.Where(c => (c.EmpresaId ?? 0) == empresaId.Value).ToList();
+
     var total = clients.Count;
-    var active = clients.Count(c => c.Status == ClientStatus.Active);
-    var inactive = clients.Count(c => c.Status == ClientStatus.Inactive);
-    var paused = clients.Count(c => c.Status == ClientStatus.Paused);
+    var active = clients.Count(c => c.Status == Core.Enums.ClientStatus.Active);
+    var inactive = clients.Count(c => c.Status == Core.Enums.ClientStatus.Inactive);
+    var paused = clients.Count(c => c.Status == Core.Enums.ClientStatus.Paused);
     var newThisMonth = clients.Count(c => c.CreatedDate.Month == DateTime.UtcNow.Month && c.CreatedDate.Year == DateTime.UtcNow.Year);
     var goalsAchieved = clients.Count(c => (c.Goals?.Any() ?? false));
+
     return new ClientStatsDTO
     {
         TotalClients = total,
@@ -525,6 +531,7 @@ public async Task<ClientStatsDTO> GetClientStatsAsync()
         NewClientsThisMonth = newThisMonth,
         ClientsWithGoalsAchieved = goalsAchieved
     };
+}
 }
 
 

@@ -9,8 +9,8 @@ namespace Services
         Task<FeedbackResponse?> GetFeedbackByIdAsync(int id, int? empresaId = null);
         Task<FeedbacksPagedDTO> GetPagedFeedbacksAsync(FeedbackFiltersDTO filters, int pageNumber, int pageSize, int? empresaId = null);
         Task<bool> DeleteFeedbackAsync(int id);
-        Task<FeedbackStatsDTO> GetFeedbackStatsAsync();
-        Task<List<FeedbackResponse>> GetFeedbacksByClientAsync(int clientId, int? empresaId = null);
+        Task<FeedbackStatsDTO> GetFeedbackStatsAsync(int? empresaId = null);
+Task<List<FeedbackResponse>> GetFeedbacksByClientAsync(int clientId, int? empresaId = null);
         Task<List<FeedbackResponse>> GetFeedbacksByTrainerAsync(int trainerId);
 
         Task<MandatoryFeedbackPendingResponse> GetMandatoryPendingAsync(int clientId);

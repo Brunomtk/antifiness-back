@@ -19,6 +19,11 @@ namespace Infrastructure.Repositories
         {
             var query = _dbContext.Notifications.AsNoTracking().AsQueryable();
 
+            if (filters.UserId.HasValue)
+            {
+                query = query.Where(n => n.UserId == filters.UserId.Value);
+            }
+
             // Apply filters
             if (filters.Type != null && filters.Type.Length > 0)
             {

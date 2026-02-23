@@ -144,21 +144,32 @@ namespace ControlApi.Controllers
         /// <param name="search">Busca por nome ou email</param>
         /// <returns>Lista de usuários</returns>
         [HttpGet]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,COMPANY")]
         public async Task<IActionResult> GetUsers(
             [FromQuery] string? role = null,
             [FromQuery] string? status = null,
-            [FromQuery] string? search = null)
+            [FromQuery] string? search = null,
+            [FromQuery] int? empresaId = null)
         {
             try
             {
-                var users = await _userService.GetAllUsersAsync(role, status, search);
+                var resolvedEmpresaId = ResolveEmpresaId(empresaId);
+                var users = await _userService.GetAllUsersAsync(role, status, search, resolvedEmpresaId);
                 return Ok(users);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        private int? ResolveEmpresaId(int? requestedEmpresaId)
+        {
+            var role = User.GetRole();
+            if (string.Equals(role, "COMPANY", StringComparison.OrdinalIgnoreCase))
+                return User.GetEmpresaId();
+
+            return requestedEmpresaId ?? User.GetEmpresaId();
         }
 
         /// <summary>
@@ -276,12 +287,19 @@ namespace ControlApi.Controllers
         /// </summary>
         /// <returns>Dados estatísticos</returns>
         [HttpGet("stats")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> GetUserStats()
+        [Authorize(Roles = "ADMIN,COMPANY")]
+        public async Task<IActionResult> GetUserStats([FromQuery] int? empresaId = null)
         {
             try
             {
-                var stats = await _userService.GetUserStatsAsync();
+                var scopedEmpresaId = string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
+                    ? User.GetEmpresaId()
+                    : (int?)null;
+
+                if (scopedEmpresaId.HasValue)
+                    empresaId = scopedEmpresaId.Value;
+
+                var stats = await _userService.GetUserStatsAsync(empresaId);
                 return Ok(stats);
             }
             catch (Exception ex)

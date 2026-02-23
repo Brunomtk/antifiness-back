@@ -286,6 +286,9 @@ try
                 if (scopedEmpresaId.HasValue)
                     empresaId = scopedEmpresaId.Value;
 
+                if (scopedEmpresaId.HasValue)
+                    clientId = null;
+
                 var scopedClientId = GetScopedClientId();
                 if (scopedClientId.HasValue)
                     clientId = scopedClientId.Value;

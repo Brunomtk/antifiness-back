@@ -16,13 +16,13 @@ namespace Services
         Task<TokenJWT> AuthenticateAsync(UserAuthenticateRequest request);
         Task<TokenJWT> RefreshTokenAsync(RefreshTokenRequest request);
         Task<bool> CreateUserAsync(CreateUserRequest request);
-        Task<IEnumerable<UserResponse>> GetAllUsersAsync(string? role = null, string? status = null, string? search = null);
+        Task<IEnumerable<UserResponse>> GetAllUsersAsync(string? role = null, string? status = null, string? search = null, int? empresaId = null);
         Task<UserResponse?> GetUserByIdAsync(int userId);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> UpdateUserAsync(int userId, UpdateUserRequest request);
         Task<bool> DeleteUserAsync(int userId);
-        Task<UserStats> GetUserStatsAsync();
-    }
+        Task<UserStats> GetUserStatsAsync(int? empresaId = null);
+}
 
     public sealed class UserService : IUserService
     {
@@ -85,9 +85,11 @@ namespace Services
             return saved > 0;
         }
 
-        public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(string? role = null, string? status = null, string? search = null)
+        public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(string? role = null, string? status = null, string? search = null, int? empresaId = null)
         {
             var users = await _userRepo.GetAllAsync();
+            if (empresaId.HasValue)
+                users = users.Where(u => (u.EmpresaId ?? 0) == empresaId.Value).ToList();
             var query = users.AsQueryable();
 
             // Filtro por role
@@ -207,9 +209,11 @@ namespace Services
             return saved > 0;
         }
 
-        public async Task<UserStats> GetUserStatsAsync()
+        public async Task<UserStats> GetUserStatsAsync(int? empresaId = null)
         {
             var users = await _userRepo.GetAllAsync();
+            if (empresaId.HasValue)
+                users = users.Where(u => (u.EmpresaId ?? 0) == empresaId.Value).ToList();
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
 

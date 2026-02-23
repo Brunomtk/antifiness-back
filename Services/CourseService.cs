@@ -468,17 +468,20 @@ namespace Services
             };
         }
 
-        public Task<CourseStatsDTO> GetCourseStatsAsync()
+        public Task<CourseStatsDTO> GetCourseStatsAsync(int? empresasId = null)
         {
-            return _unitOfWork.Courses.GetCourseStatsAsync();
-        }
+            return _unitOfWork.Courses.GetCourseStatsAsync(empresasId);
+}
 
-        public async Task<CourseStatsDTO> GetCourseStatsAsync(int courseId)
+        public async Task<CourseStatsDTO> GetCourseStatsAsync(int courseId, int? empresasId = null)
         {
             var courses = await _unitOfWork.Courses.GetAll();
             var course = courses.FirstOrDefault(c => c.Id == courseId);
 
             if (course == null) return new CourseStatsDTO();
+
+            if (empresasId.HasValue && course.EmpresasId != empresasId.Value)
+                return new CourseStatsDTO();
 
             var enrollments = course.Enrollments != null ? course.Enrollments.ToList() : new List<Enrollment>();
             var reviews = course.Reviews != null ? course.Reviews.ToList() : new List<Review>();

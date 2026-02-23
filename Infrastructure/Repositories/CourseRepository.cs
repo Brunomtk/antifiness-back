@@ -104,10 +104,13 @@ namespace Infrastructure.Repositories
             };
         }
 
-        public async Task<CourseStatsDTO> GetCourseStatsAsync()
+        public async Task<CourseStatsDTO> GetCourseStatsAsync(int? empresasId = null)
         {
             var courses = await GetAll();
             var coursesList = courses.ToList();
+
+            if (empresasId.HasValue)
+                coursesList = coursesList.Where(c => c.EmpresasId == empresasId.Value).ToList();
 
             var totalCourses = coursesList.Count;
             var publishedCourses = coursesList.Count(c => c.Status == Core.Enums.CourseStatus.Published);

@@ -5,6 +5,7 @@ namespace Core.DTO.Notification
 {
     public class NotificationFiltersDTO
     {
+        public int? UserId { get; set; }
         public NotificationType[]? Type { get; set; }
         public NotificationCategory[]? Category { get; set; }
         public NotificationPriority[]? Priority { get; set; }

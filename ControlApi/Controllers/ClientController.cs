@@ -370,10 +370,14 @@ namespace ControlApi.Controllers
         [HttpGet("stats")]
         [Authorize(Roles = "ADMIN,COMPANY")]
         [ProducesResponseType(typeof(ClientStatsDTO), 200)]
-        public async Task<ActionResult<ClientStatsDTO>> GetStats()
+        public async Task<ActionResult<ClientStatsDTO>> GetStats([FromQuery] int? empresaId = null)
         {
-            var stats = await _clientService.GetClientStatsAsync();
-            return Ok(stats);
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                empresaId = scopedEmpresaId.Value;
+
+            var stats = await _clientService.GetClientStatsAsync(empresaId);
+return Ok(stats);
         }
         /// <summary>
         /// Obtém a dieta atual do cliente

@@ -106,9 +106,14 @@ namespace Infrastructure.Repositories
             };
         }
 
-        public async Task<FeedbackStatsDTO> GetFeedbackStatsAsync()
+        public async Task<FeedbackStatsDTO> GetFeedbackStatsAsync(int? empresaId = null)
         {
-            var feedbacks = await Feedbacks.ToListAsync();
+            var query = Feedbacks.Include(f => f.Client).AsQueryable();
+
+            if (empresaId.HasValue)
+                query = query.Where(f => (f.Client.EmpresaId ?? 0) == empresaId.Value);
+
+            var feedbacks = await query.ToListAsync();
 
             return new FeedbackStatsDTO
             {

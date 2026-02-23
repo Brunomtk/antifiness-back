@@ -179,17 +179,25 @@ namespace ControlApi.Controllers
 
         [HttpGet("stats")]
         [Authorize(Roles = "ADMIN,COMPANY")]
-        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats()
+        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats([FromQuery] int? empresasId = null)
         {
-            var stats = await _courseService.GetCourseStatsAsync();
+            var scopedEmpresaId = GetScopedEmpresaId();
+            if (scopedEmpresaId.HasValue)
+                empresasId = scopedEmpresaId.Value;
+
+            var stats = await _courseService.GetCourseStatsAsync(empresasId);
             return Ok(stats);
         }
 
         [HttpGet("{courseId}/stats")]
         [Authorize(Roles = "ADMIN,COMPANY")]
-        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats(int courseId)
+        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats(int courseId, [FromQuery] int? empresasId = null)
         {
-            var stats = await _courseService.GetCourseStatsAsync(courseId);
+            var scopedEmpresaId2 = GetScopedEmpresaId();
+            if (scopedEmpresaId2.HasValue)
+                empresasId = scopedEmpresaId2.Value;
+
+            var stats = await _courseService.GetCourseStatsAsync(courseId, empresasId);
             return Ok(stats);
         }
     }
