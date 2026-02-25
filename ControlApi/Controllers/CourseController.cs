@@ -179,13 +179,19 @@ namespace ControlApi.Controllers
 
         [HttpGet("stats")]
         [Authorize(Roles = "ADMIN,COMPANY")]
-        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats([FromQuery] int? empresasId = null)
+        public async Task<ActionResult<CourseStatsDTO>> GetCourseStats([FromQuery] int? empresaId = null, [FromQuery] int? empresasId = null)
         {
+            if (!empresaId.HasValue && empresasId.HasValue)
+                empresaId = empresasId.Value;
+
             var scopedEmpresaId = GetScopedEmpresaId();
             if (scopedEmpresaId.HasValue)
-                empresasId = scopedEmpresaId.Value;
+                empresaId = scopedEmpresaId.Value;
 
-            var stats = await _courseService.GetCourseStatsAsync(empresasId);
+            if (string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase) && !empresaId.HasValue)
+                return Ok(new CourseStatsDTO());
+
+            var stats = await _courseService.GetCourseStatsAsync(empresaId);
             return Ok(stats);
         }
 

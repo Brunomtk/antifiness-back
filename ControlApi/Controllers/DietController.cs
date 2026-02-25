@@ -220,18 +220,35 @@ namespace ControlApi.Controllers
         /// <returns>Estatísticas completas das dietas</returns>
         [HttpGet("stats")]
         [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
-        public async Task<ActionResult<DietStatsDTO>> GetDietStats()
+        public async Task<ActionResult<DietStatsDTO>> GetDietStats([FromQuery] int? empresaId = null, [FromQuery] int? clientId = null)
         {
             try
             {
-                // Para CLIENTE, retornamos estatísticas apenas do próprio clientId.
-                // Para COMPANY, fica restrito à própria empresa (quando aplicável).
+                // Escopo por role:
+                // - CLIENTE: sempre restringe ao próprio clientId
+                // - COMPANY: sempre restringe à própria empresa (se claim ausente, aceita o empresaId via query)
+                // - ADMIN: pode consultar global ou filtrar por query
+                var role = User.GetRole();
+
                 var scopedClientId = GetScopedClientId();
                 var scopedEmpresaId = GetScopedEmpresaId();
-                var empresaIdForStats = scopedEmpresaId;
-                var clientIdForStats = scopedClientId;
 
-                var stats = await _dietService.GetDietStatsAsync(empresaIdForStats, clientIdForStats);
+                if (string.Equals(role, "CLIENTE", StringComparison.OrdinalIgnoreCase))
+                {
+                    clientId = scopedClientId;
+                    empresaId = null;
+                }
+                else if (string.Equals(role, "COMPANY", StringComparison.OrdinalIgnoreCase))
+                {
+                    empresaId = scopedEmpresaId ?? empresaId;
+                    clientId = null;
+
+                    // Se COMPANY não tem empresaId (nem claim nem query), não pode cair no global.
+                    if (!empresaId.HasValue)
+                        return Ok(new DietStatsDTO());
+                }
+
+                var stats = await _dietService.GetDietStatsAsync(empresaId, clientId);
                 return Ok(stats);
             }
             catch (Exception ex)
