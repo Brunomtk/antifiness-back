@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 using ControlApi.Helpers;
 using Core.DTO.Diet;
 using Core.Enums;
@@ -153,7 +154,17 @@ namespace ControlApi.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var diet = await _dietService.CreateDietAsync(request);
                 return CreatedAtAction(nameof(GetDietById), new { id = diet.Id }, diet);
@@ -177,7 +188,17 @@ namespace ControlApi.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var diet = await _dietService.UpdateDietAsync(id, request);
                 if (diet == null)
@@ -309,7 +330,17 @@ try
 try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var meal = await _dietService.CreateDietMealAsync(dietId, request);
                 return CreatedAtAction(nameof(GetDietMeals), new { dietId }, meal);
@@ -336,7 +367,17 @@ try
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var meal = await _dietService.UpdateDietMealAsync(mealId, request);
                 if (meal == null)
@@ -459,7 +500,17 @@ try
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var progress = await _dietService.CreateDietProgressAsync(dietId, request);
                 return CreatedAtAction(nameof(GetDietProgressByFilter), new { dietId }, progress);
@@ -503,7 +554,17 @@ try
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var supplement = await _dietService.CreateDietSupplementAsync(dietId, request);
                 return CreatedAtAction(nameof(GetDietSupplements), new { dietId }, supplement);
@@ -530,7 +591,17 @@ try
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value != null && x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            k => k.Key,
+                            v => v.Value!.Errors.Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido" : e.ErrorMessage).ToArray()
+                        );
+
+                    var first = errors.Values.FirstOrDefault()?.FirstOrDefault();
+                    return BadRequest(new { message = first ?? "Dados inválidos", errors });
+                }
 
                 var result = await _dietService.UpdateDietSupplementAsync(dietId, supplementId, request);
                 if (result == null)
