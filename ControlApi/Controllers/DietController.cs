@@ -314,6 +314,10 @@ try
                 var meal = await _dietService.CreateDietMealAsync(dietId, request);
                 return CreatedAtAction(nameof(GetDietMeals), new { dietId }, meal);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Erro interno do servidor", error = ex.Message });

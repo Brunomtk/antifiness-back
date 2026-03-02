@@ -9,6 +9,7 @@ using Infrastructure.Repositories;
 
 using Core.DTO.Nutrition;
 using Services;
+using Services.Units;
 
 namespace Services
 {
@@ -337,7 +338,11 @@ namespace Services
                 var food = allFoods.FirstOrDefault(f => f.Id == foodRequest.FoodId);
                 if (food != null)
                 {
-                    var multiplier = foodRequest.Quantity / 100.0;
+                    // Base do alimento é por 100g. Converte medidas caseiras/unidades para gramas.
+                    if (!UnitCatalog.TryConvertToGrams(foodRequest.Quantity, foodRequest.Unit, out var grams, out _))
+                        throw new InvalidOperationException($"Unidade '{foodRequest.Unit}' não pode ser convertida para gramas. Use uma unidade de massa/volume suportada.");
+
+                    var multiplier = grams / 100.0;
 
                     var mealFood = new DietMealFood
                     {
@@ -426,7 +431,11 @@ namespace Services
                     var food = allFoods.FirstOrDefault(f => f.Id == foodRequest.FoodId);
                     if (food != null)
                     {
-                        var multiplier = foodRequest.Quantity / 100.0;
+                        // Base do alimento é por 100g. Converte medidas caseiras/unidades para gramas.
+                        if (!UnitCatalog.TryConvertToGrams(foodRequest.Quantity, foodRequest.Unit, out var grams, out _))
+                            throw new InvalidOperationException($"Unidade '{foodRequest.Unit}' não pode ser convertida para gramas. Use uma unidade de massa/volume suportada.");
+
+                        var multiplier = grams / 100.0;
 
                         var mealFood = new DietMealFood
                         {
