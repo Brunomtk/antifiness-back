@@ -305,8 +305,10 @@ namespace Services
 
         }
 
-        // Obrigatório: feedback modal (a cada X dias)
-        private const int MandatoryFeedbackEveryDays = 30;
+        // Obrigatório: feedback modal por ciclo de ativação.
+        // O cliente responde apenas 1x por ciclo.
+        // Quando o admin quiser exigir novamente para todos, basta reenviar a configuração com ForceAllNow = true.
+        private const int MandatoryFeedbackEveryDays = 0;
 
         private async Task<bool> GetMandatoryEnabledAsync()
         {
@@ -376,8 +378,6 @@ namespace Services
 
         public async Task<MandatoryFeedbackPendingResponse> GetMandatoryPendingAsync(int clientId)
         {
-            var now = DateTime.UtcNow;
-
             // Se o admin ainda não habilitou globalmente, nunca fica pendente.
             var enabled = await GetMandatoryEnabledAsync();
             if (!enabled)
@@ -392,25 +392,23 @@ namespace Services
                 };
             }
 
-            // Quando o admin habilita, ele define um "force from".
-            // Isso faz TODO mundo precisar responder pelo menos 1x após essa data.
+            // Quando o admin habilita com ForceAllNow, o back grava um marco global.
+            // A partir desse instante, cada cliente precisa responder somente UMA vez.
             var forceFrom = await GetMandatoryForceFromAsync() ?? DateTime.MinValue;
 
-            // Último feedback obrigatório do cliente
-            var last = (await _unitOfWork.Feedbacks.GetAll())
-                .Where(f => f.ClientId == clientId && f.Type == Core.Enums.FeedbackType.MandatorySurvey && f.CreatedDate >= forceFrom)
-                .OrderByDescending(f => f.CreatedDate)
-                .FirstOrDefault();
+            var alreadySubmittedInCurrentCycle = (await _unitOfWork.Feedbacks.GetAll())
+                .Any(f => f.ClientId == clientId
+                       && f.Type == Core.Enums.FeedbackType.MandatorySurvey
+                       && ((f.ResponseDate ?? f.CreatedDate) >= forceFrom));
 
-            var due = last == null ? now : last.CreatedDate.AddDays(MandatoryFeedbackEveryDays);
-            var hasPending = last == null || due <= now;
+            var hasPending = !alreadySubmittedInCurrentCycle;
 
-            var resp = new MandatoryFeedbackPendingResponse
+            return new MandatoryFeedbackPendingResponse
             {
                 HasPending = hasPending,
-                DaysUntilNextRequired = hasPending ? null : (int)Math.Ceiling((due - now).TotalDays),
+                DaysUntilNextRequired = null,
                 Title = "Conta pra gente 🙂",
-                Description = "Esse feedback é obrigatório e ajuda a melhorar sua experiência.",
+                Description = "Esse feedback é obrigatório e precisa ser respondido apenas uma vez por ciclo de ativação.",
                 Questions = new List<MandatoryFeedbackQuestionDTO>
                 {
                     new MandatoryFeedbackQuestionDTO { Key = "overallRating", Label = "Nota geral do app (1 a 5)", Type = "rating", Required = true, Min = 1, Max = 5 },
@@ -420,8 +418,6 @@ namespace Services
                     new MandatoryFeedbackQuestionDTO { Key = "comment", Label = "Algum comentário ou sugestão?", Type = "text", Required = false }
                 }
             };
-
-            return resp;
         }
 
         public async Task<FeedbackResponse> SubmitMandatoryFeedbackAsync(SubmitMandatoryFeedbackRequest request)
@@ -440,6 +436,8 @@ namespace Services
                 request.Comment
             };
 
+            var utcNow = DateTime.UtcNow;
+
             var feedback = new Feedback
             {
                 ClientId = request.ClientId,
@@ -450,7 +448,9 @@ namespace Services
                 Description = JsonSerializer.Serialize(payload),
                 Rating = Math.Max(1, Math.Min(5, request.OverallRating)),
                 Status = Core.Enums.FeedbackStatus.Resolved, // já vem respondido
-                ResponseDate = DateTime.UtcNow,
+                ResponseDate = utcNow,
+                CreatedDate = utcNow,
+                UpdatedDate = utcNow,
                 IsAnonymous = request.IsAnonymous
             };
 

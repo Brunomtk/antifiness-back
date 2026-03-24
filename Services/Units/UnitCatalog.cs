@@ -23,8 +23,11 @@ namespace Services.Units
             new("ml", "Mililitros", null, 1.0),
             new("l", "Litros", null, 1000.0),
 
-            // Unidade (sem conversão universal)
-            new("un", "Unidade", null, null),
+            // Unidade
+            // Regra de compatibilidade desta base: 1 unidade = 100g.
+            // Isso evita travar o fluxo nas refeições quando o front envia `un`.
+            // Se no futuro cada alimento tiver equivalência própria, essa regra pode ser substituída.
+            new("un", "Unidade", 100.0, null),
 
             // Medidas caseiras (massa aproximada)
             new("tsp_level", "Colher de chá (rasa)", 2.5, null),
@@ -144,12 +147,6 @@ namespace Services.Units
                 return false;
             }
 
-            if (unit.Key.Equals("un", StringComparison.OrdinalIgnoreCase))
-            {
-                error = "A unidade 'un' não pode ser convertida para gramas sem uma equivalência do alimento.";
-                return false;
-            }
-
             if (unit.GramsPerUnit.HasValue)
             {
                 grams = quantity * unit.GramsPerUnit.Value;
@@ -181,12 +178,6 @@ namespace Services.Units
             if (!TryGet(toUnitKey, out var to) || to == null)
             {
                 error = "Unidade de destino inválida.";
-                return false;
-            }
-
-            if (from.Key.Equals("un", StringComparison.OrdinalIgnoreCase) || to.Key.Equals("un", StringComparison.OrdinalIgnoreCase))
-            {
-                error = "Conversão envolvendo 'un' exige equivalência específica do alimento.";
                 return false;
             }
 
