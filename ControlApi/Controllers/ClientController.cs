@@ -194,7 +194,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados do progresso de peso</param>
         /// <returns>Registro de progresso criado</returns>
         [HttpPost("{clientId:int}/progress/weight")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(ClientMeasurementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -229,7 +229,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados das medidas corporais</param>
         /// <returns>Registro de medidas criado</returns>
         [HttpPost("{clientId:int}/progress/measurements")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(ClientMeasurementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -264,7 +264,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da foto de progresso</param>
         /// <returns>Registro de foto criado</returns>
         [HttpPost("{clientId:int}/progress/photos")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

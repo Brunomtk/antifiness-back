@@ -18,12 +18,18 @@ namespace ControlApi.Helpers
 
         public static int? GetEmpresaId(this ClaimsPrincipal user)
         {
-            return TryGetInt(user, "empresaId") ?? TryGetInt(user, "EmpresaId");
+            return TryGetPositiveInt(user, "empresaId")
+                   ?? TryGetPositiveInt(user, "EmpresaId")
+                   ?? TryGetPositiveInt(user, "companyId")
+                   ?? TryGetPositiveInt(user, "CompanyId");
         }
 
         public static int? GetClientId(this ClaimsPrincipal user)
         {
-            return TryGetInt(user, "clientId") ?? TryGetInt(user, "ClientId");
+            return TryGetPositiveInt(user, "clientId")
+                   ?? TryGetPositiveInt(user, "ClientId")
+                   ?? TryGetPositiveInt(user, "clienteId")
+                   ?? TryGetPositiveInt(user, "ClienteId");
         }
 
         private static int? TryGetInt(ClaimsPrincipal user, string claimType)
@@ -31,6 +37,12 @@ namespace ControlApi.Helpers
             var v = user.FindFirst(claimType)?.Value;
             if (int.TryParse(v, out var i)) return i;
             return null;
+        }
+
+        private static int? TryGetPositiveInt(ClaimsPrincipal user, string claimType)
+        {
+            var value = TryGetInt(user, claimType);
+            return value.HasValue && value.Value > 0 ? value.Value : null;
         }
     }
 }
