@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Security.Claims;
 
 namespace ControlApi.Helpers
@@ -6,43 +8,67 @@ namespace ControlApi.Helpers
     {
         public static string? GetRole(this ClaimsPrincipal user)
         {
-            return user.FindFirst(ClaimTypes.Role)?.Value ?? user.FindFirst("role")?.Value;
+            return FirstNonEmpty(user,
+                ClaimTypes.Role,
+                "role",
+                "userTypeName",
+                "userType");
         }
 
         public static int? GetUserId(this ClaimsPrincipal user)
         {
-            return TryGetInt(user, "userId")
-                   ?? TryGetInt(user, ClaimTypes.NameIdentifier)
-                   ?? TryGetInt(user, "sub");
+            return TryGetPositiveInt(user,
+                "userId",
+                ClaimTypes.NameIdentifier,
+                "sub",
+                ClaimTypes.Sid,
+                "nameid");
         }
 
         public static int? GetEmpresaId(this ClaimsPrincipal user)
         {
-            return TryGetPositiveInt(user, "empresaId")
-                   ?? TryGetPositiveInt(user, "EmpresaId")
-                   ?? TryGetPositiveInt(user, "companyId")
-                   ?? TryGetPositiveInt(user, "CompanyId");
+            return TryGetPositiveInt(user,
+                "empresaId",
+                "EmpresaId",
+                "companyId",
+                "CompanyId",
+                "company_id");
         }
 
         public static int? GetClientId(this ClaimsPrincipal user)
         {
-            return TryGetPositiveInt(user, "clientId")
-                   ?? TryGetPositiveInt(user, "ClientId")
-                   ?? TryGetPositiveInt(user, "clienteId")
-                   ?? TryGetPositiveInt(user, "ClienteId");
+            return TryGetPositiveInt(user,
+                "clientId",
+                "ClientId",
+                "clienteId",
+                "ClienteId");
         }
 
-        private static int? TryGetInt(ClaimsPrincipal user, string claimType)
+        private static int? TryGetPositiveInt(ClaimsPrincipal user, params string[] claimTypes)
         {
-            var v = user.FindFirst(claimType)?.Value;
-            if (int.TryParse(v, out var i)) return i;
+            foreach (var claimType in claimTypes)
+            {
+                var raw = user.FindFirst(claimType)?.Value;
+                if (string.IsNullOrWhiteSpace(raw))
+                    continue;
+
+                if (int.TryParse(raw, out var value) && value > 0)
+                    return value;
+            }
+
             return null;
         }
 
-        private static int? TryGetPositiveInt(ClaimsPrincipal user, string claimType)
+        private static string? FirstNonEmpty(ClaimsPrincipal user, params string[] claimTypes)
         {
-            var value = TryGetInt(user, claimType);
-            return value.HasValue && value.Value > 0 ? value.Value : null;
+            foreach (var claimType in claimTypes)
+            {
+                var value = user.FindFirst(claimType)?.Value;
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return null;
         }
     }
 }

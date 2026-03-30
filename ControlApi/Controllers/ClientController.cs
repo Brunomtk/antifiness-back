@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ControlApi.Helpers;
 using Core.DTO.Client;
@@ -25,18 +26,35 @@ namespace ControlApi.Controllers
             _clientService = clientService;
         }
 
+        private bool IsInRole(params string[] roles)
+        {
+            var currentRole = User.GetRole();
+            if (string.IsNullOrWhiteSpace(currentRole))
+                return false;
+
+            foreach (var role in roles)
+            {
+                if (string.Equals(currentRole, role, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
         private int? GetScopedEmpresaId()
         {
-            return string.Equals(User.GetRole(), "COMPANY", StringComparison.OrdinalIgnoreCase)
-                ? User.GetEmpresaId()
-                : null;
+            if (!IsInRole("COMPANY", "EMPRESA"))
+                return null;
+
+            return User.GetEmpresaId();
         }
 
         private int? GetScopedClientId()
         {
-            return string.Equals(User.GetRole(), "CLIENTE", StringComparison.OrdinalIgnoreCase)
-                ? User.GetClientId()
-                : null;
+            if (!IsInRole("CLIENTE", "CLIENT"))
+                return null;
+
+            return User.GetClientId();
         }
 
         /// <summary>
@@ -116,7 +134,17 @@ namespace ControlApi.Controllers
         public async Task<ActionResult<ClientResponse>> Create([FromBody] CreateClientRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var scopedEmpresaId = GetScopedEmpresaId();
             if (scopedEmpresaId.HasValue)
@@ -154,7 +182,17 @@ namespace ControlApi.Controllers
             }
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var result = await _clientService.UpdateClientAsync(id, request);
             if (!result)
@@ -213,7 +251,17 @@ namespace ControlApi.Controllers
 
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var result = await _clientService.AddWeightProgressAsync(clientId, request);
             if (result == null)
@@ -248,7 +296,17 @@ namespace ControlApi.Controllers
 
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var result = await _clientService.AddMeasurementsProgressAsync(clientId, request);
             if (result == null)
@@ -283,7 +341,17 @@ namespace ControlApi.Controllers
 
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var result = await _clientService.AddPhotoProgressAsync(clientId, request);
             if (result == null)
@@ -299,7 +367,7 @@ namespace ControlApi.Controllers
         /// <param name="request">Dados da conquista</param>
         /// <returns>Conquista criada</returns>
         [HttpPost("{clientId:int}/achievements")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -318,7 +386,17 @@ namespace ControlApi.Controllers
 
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var result = await _clientService.AddAchievementAsync(clientId, request);
             if (result == null)
@@ -333,7 +411,7 @@ namespace ControlApi.Controllers
         /// <param name="achievementId">ID da conquista</param>
         /// <param name="request">Campos a atualizar</param>
         [HttpPut("{clientId:int}/achievements/{achievementId:int}")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(typeof(AchievementDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -355,7 +433,17 @@ namespace ControlApi.Controllers
 
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new
+                {
+                    message = "Dados inválidos para salvar a anotação.",
+                    errors = ModelState
+                        .Where(x => x.Value?.Errors?.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Valor inválido." : e.ErrorMessage)
+                                .ToArray())
+                });
 
             var updated = await _clientService.UpdateAchievementAsync(clientId, achievementId, request);
             if (updated == null)
@@ -543,7 +631,7 @@ return Ok(stats);
         /// <param name="clientId">ID do cliente</param>
         /// <param name="achievementId">ID da conquista</param>
         [HttpDelete("{clientId:int}/achievements/{achievementId:int}")]
-        [Authorize(Roles = "COMPANY,CLIENTE")]
+        [Authorize(Roles = "ADMIN,COMPANY,CLIENTE")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteAchievement(int clientId, int achievementId)
